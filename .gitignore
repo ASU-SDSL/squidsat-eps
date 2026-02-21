@@ -1,0 +1,33 @@
+# West workspace state (generated locally)
+/.west/
+/zephyr/
+/modules/
+
+# Python environment (local)
+/.venv/
+__pycache__/
+*.py[cod]
+
+# Build output
+/build/
+**/build/
+*.bin
+*.hex
+*.elf
+*.map
+*.lst
+*.log
+
+# IDE/editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.bak
