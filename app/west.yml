@@ -11,6 +11,7 @@ manifest:
         name-allowlist:
           - cmsis_6
           - hal_stm32
+          - nanopb
 
   self:
     path: app
