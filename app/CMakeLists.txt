@@ -6,5 +6,10 @@ project(eps)
 list(APPEND CMAKE_MODULE_PATH ${ZEPHYR_BASE}/modules/nanopb)
 include(nanopb)
 
-zephyr_nanopb_sources(app src/eps_link.proto)
-target_sources(app PRIVATE src/main.c)
+target_include_directories(app PRIVATE include)
+
+zephyr_nanopb_sources(app proto/eps_link.proto)
+target_sources(app PRIVATE
+	src/main.c
+	src/can_link.c
+)

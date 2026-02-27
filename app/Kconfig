@@ -1,28 +1,48 @@
 mainmenu "EPS Application"
 
-source "Kconfig.zephyr"
+	source "Kconfig.zephyr"
 
 menu "EPS options"
 
-choice EPS_NODE_ROLE
-	prompt "EPS node role"
-	default EPS_NODE_A
+	choice EPS_NODE_ROLE
+		prompt "EPS node role"
+		default EPS_NODE_A
 
-config EPS_NODE_A
-	bool "Node A"
+		config EPS_NODE_A
+			bool "Node A"
 
-config EPS_NODE_B
-	bool "Node B"
+		config EPS_NODE_B
+			bool "Node B"
 
-endchoice
+	endchoice
 
-config EPS_CAN_LOOPBACK
-	bool "Enable CAN loopback mode for self-test"
-	default n
+	config CAN_LINK_LOOPBACK
+		bool "Enable CAN loopback mode for self-test"
+		default n
 
-config EPS_TX_PERIOD_MS
-	int "TX period in milliseconds"
-	default 1000
-	range 10 60000
+	config CAN_LINK_TX_PERIOD_MS
+		int "TX period in milliseconds"
+		default 1000
+		range 10 60000
 
-endmenu
+	config CAN_LINK_RX_THREAD_STACK_SIZE
+		int "CAN RX task stack size"
+		default 1536
+		range 512 8192
+
+	config CAN_LINK_RX_THREAD_PRIORITY
+		int "CAN RX task priority"
+		default 5
+		range -16 15
+
+	config CAN_LINK_RX_TIMEOUT_MS
+		int "CAN RX timeout in milliseconds"
+		default 2000
+		range 10 60000
+
+	config CAN_LINK_RX_BUFFER_SIZE
+		int "CAN RX buffer size (ISO-TP payload bytes)"
+		default 128
+		range 8 4095
+
+	endmenu
