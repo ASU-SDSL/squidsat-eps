@@ -10,4 +10,5 @@ message EpsLinkMessage {
 	uint32 seq = 2;
 	uint32 uptime_ms = 3;
 	MsgType type = 4;
+	uint32 target_node = 5;
 }

@@ -11,6 +11,7 @@ __pycache__/
 # Build output
 /build/
 **/build/
+/build_*
 *.bin
 *.hex
 *.elf
@@ -33,6 +34,3 @@ Thumbs.db
 *.bak
 
 
-# temp build folders 
-build_node_a/
-build_node_b/

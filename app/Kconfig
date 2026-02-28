@@ -4,17 +4,25 @@ mainmenu "EPS Application"
 
 menu "EPS options"
 
-	choice EPS_NODE_ROLE
-		prompt "EPS node role"
-		default EPS_NODE_A
+	config CAN_LINK_NODE_ADDR
+		hex "Local CAN node address (8-bit)"
+		default 0x02
+		range 0x01 0xFE
 
-		config EPS_NODE_A
-			bool "Node A"
+	config CAN_LINK_PEER_NODE_ADDR
+		hex "Peer CAN node address for unicast demo TX (8-bit)"
+		default 0x01
+		range 0x01 0xFE
 
-		config EPS_NODE_B
-			bool "Node B"
+	config CAN_LINK_COMMAND_PRIORITY
+		int "CAN priority for command / broadcast traffic (0..7)"
+		default 3
+		range 0 7
 
-	endchoice
+	config CAN_LINK_TELEMETRY_PRIORITY
+		int "CAN priority for telemetry/unicast traffic (0..7)"
+		default 6
+		range 0 7
 
 	config CAN_LINK_LOOPBACK
 		bool "Enable CAN loopback mode for self-test"
@@ -44,5 +52,14 @@ menu "EPS options"
 		int "CAN RX buffer size (ISO-TP payload bytes)"
 		default 128
 		range 8 4095
+
+	config CAN_LINK_BROADCAST_TX_ENABLE
+		bool "Enable periodic broadcast transmit in main demo app"
+		default n
+
+	config CAN_LINK_BROADCAST_TX_PERIOD_MS
+		int "Broadcast TX period in milliseconds (demo app)"
+		default 3000
+		range 100 60000
 
 	endmenu

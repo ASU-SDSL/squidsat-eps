@@ -67,6 +67,7 @@ uv pip install -r zephyr/scripts/requirements.txt
 ```
 
 Notes:
+
 - The workspace is pinned in `app/west.yml` (Zephyr `v4.3.0`).
 - Manifest allowlist is intentionally small: `cmsis_6`, `hal_stm32`.
 
@@ -79,6 +80,7 @@ python -m west build -p always -b nucleo_f103rb app
 ```
 
 Build artifact used for flashing:
+
 - `build/zephyr/zephyr.bin`
 
 ## 4. Cross-platform flashing steps
@@ -116,4 +118,46 @@ eps/
 │   └── west.yml
 ├── flash.sh
 └── README.md
+```
+
+## 5. Three-board broadcast test (functional addressing `0x18DB`)
+
+Use three terminal sessions from repo root:
+
+```bash
+# Board 1 (sender: node 0x01)
+./.venv/bin/python -m west build -p always -b nucleo_f103rb app -- -DCONF_FILE="prj.conf;node_a.conf"
+st-flash --connect-under-reset write build/zephyr/zephyr.bin 0x08000000
+```
+
+```bash
+# Board 2 (receiver: node 0x02)
+./.venv/bin/python -m west build -p always -b nucleo_f103rb app -- -DCONF_FILE="prj.conf;node_b.conf"
+st-flash --connect-under-reset write build/zephyr/zephyr.bin 0x08000000
+```
+
+```bash
+# Board 3 (receiver: node 0x03)
+./.venv/bin/python -m west build -p always -b nucleo_f103rb app -- -DCONF_FILE="prj.conf;node_c.conf"
+st-flash --connect-under-reset write build/zephyr/zephyr.bin 0x08000000
+```
+
+Expected logs:
+
+- Sender prints `TX broadcast seq=...`.
+- All boards print `RX src=1 broadcast=1 ...` for each broadcast frame.
+- Unicast demo messages continue to print with `broadcast=0`.
+
+## 6. Multi-port serial monitor
+
+Use the helper script to monitor all connected boards with `[1]/[2]/[3]` labels:
+
+```bash
+./.venv/bin/python monitor.py
+```
+
+Optional explicit ports:
+
+```bash
+./.venv/bin/python monitor.py --ports /dev/cu.usbmodem11203 /dev/cu.usbmodem11303 /dev/cu.usbmodem11403
 ```
