@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+message EpsLinkMessage {
+	enum MsgType {
+		HEARTBEAT = 0;
+		STATUS = 1;
+	}
+
+	uint32 node_id = 1;
+	uint32 seq = 2;
+	uint32 uptime_ms = 3;
+	MsgType type = 4;
+	uint32 target_node = 5;
+}
