@@ -1,0 +1,3 @@
+[submodule "app/include/STM32_INA219_Library"]
+	path = app/include/STM32_INA219_Library
+	url = https://github.com/thibeaux/STM32_INA219_Library.git
