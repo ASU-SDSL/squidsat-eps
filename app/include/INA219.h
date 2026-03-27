@@ -78,11 +78,7 @@ typedef struct
 } INA219_t;
 
 enum BatteryState {Battery_START,Battery_OK, Battery_LOW}; // To help health check function sufficiently diagnose problems
-extern bool isFirst;
-//AIDAN: Added extern keyword to try and fix "multiple definition of" error when building
-extern uint16_t ina219_calibrationValue;
-extern int16_t ina219_currentDivider_mA;
-extern int16_t ina219_powerMultiplier_mW;
+
 
 int INA219_GetDeltaTime_ms();
 uint8_t INA219_Init(INA219_t *ina219, I2C_HandleTypeDef *i2c, uint8_t Address);

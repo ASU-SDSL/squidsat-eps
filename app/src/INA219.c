@@ -10,6 +10,12 @@
 
 enum BatteryState batteryState;
 
+//AIDAN: Moved from .h file to try and fix "multiple definition of" error when building
+bool isFirst;
+uint16_t ina219_calibrationValue;
+int16_t ina219_currentDivider_mA;
+int16_t ina219_powerMultiplier_mW;
+
 /*
  * @brief:		Read a register from the IN219 sensor.
  * @param:		Pointer to the device object that was made from the struct. EX:  (&ina219)
