@@ -10,6 +10,7 @@
 #include <pb_decode.h>
 #include <pb_encode.h>
 #include "can_link.h"
+#include "INA219.h"
 #include "proto/eps_link.pb.h"
 
 LOG_MODULE_REGISTER(eps, LOG_LEVEL_INF);
