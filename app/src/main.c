@@ -152,6 +152,11 @@ int main(void)
 	while(!INA219_Init(&Solar_Input_INA, &hi2c7, 0x43)){}
 	while(!INA219_Init(&Five_Volt_RF_INA, &hi2c8, 0x45)){}
 
+	//Example of using provided funtions. Nothing works yet until we get an actual board working
+	uint16_t power = INA219_ReadPower(&Main_INA);
+
+	uint16_t current = INA219_ReadCurrent(&Main_INA);
+
 	ret = can_link_init(on_can_message, NULL);
 	if (ret != 0) {
 		LOG_ERR("CAN init failed: %d", ret);
