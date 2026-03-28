@@ -61,5 +61,10 @@ menu "EPS options"
 		int "Broadcast TX period in milliseconds (demo app)"
 		default 3000
 		range 100 60000
+	
+	config MY_APP_HAL_FIX
+    	bool
+    	default y
+    	select USE_STM32_HAL_I2C
 
 	endmenu

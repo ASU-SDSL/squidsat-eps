@@ -10,6 +10,7 @@
 #include <pb_decode.h>
 #include <pb_encode.h>
 #include "can_link.h"
+#include "INA219.h"
 #include "proto/eps_link.pb.h"
 
 LOG_MODULE_REGISTER(eps, LOG_LEVEL_INF);
@@ -120,6 +121,41 @@ int main(void)
 	size_t plan_len;
 	size_t plan_idx = 0U;
 	int ret;
+
+	//INA219 instances - names subject to change
+	INA219_t Battery_INA;
+	INA219_t Main_INA;
+	INA219_t Three_Volt_INA;
+	INA219_t Twelve_Volt_INA;
+	INA219_t Three_Volt_Second_INA;
+	INA219_t Five_Volt_INA;
+	INA219_t Solar_Input_INA;
+	INA219_t Five_Volt_RF_INA;
+
+	//I2C typdef
+	I2C_HandleTypeDef hi2c1;
+	I2C_HandleTypeDef hi2c2;
+	I2C_HandleTypeDef hi2c3;
+	I2C_HandleTypeDef hi2c4;
+	I2C_HandleTypeDef hi2c5;
+	I2C_HandleTypeDef hi2c6;
+	I2C_HandleTypeDef hi2c7;
+	I2C_HandleTypeDef hi2c8;
+
+	//INA Initializations
+	while(!INA219_Init(&Battery_INA, &hi2c1, 0x44)){}
+	while(!INA219_Init(&Main_INA, &hi2c2, 0x40)){}
+	while(!INA219_Init(&Three_Volt_INA, &hi2c3, 0x45)){}
+	while(!INA219_Init(&Twelve_Volt_INA, &hi2c4, 0x49)){}
+	while(!INA219_Init(&Three_Volt_Second_INA, &hi2c5, 0x41)){}
+	while(!INA219_Init(&Five_Volt_INA, &hi2c6, 0x42)){}
+	while(!INA219_Init(&Solar_Input_INA, &hi2c7, 0x43)){}
+	while(!INA219_Init(&Five_Volt_RF_INA, &hi2c8, 0x45)){}
+
+	//Example of using provided funtions. Nothing works yet until we get an actual board working
+	uint16_t power = INA219_ReadPower(&Main_INA);
+
+	uint16_t current = INA219_ReadCurrent(&Main_INA);
 
 	ret = can_link_init(on_can_message, NULL);
 	if (ret != 0) {
