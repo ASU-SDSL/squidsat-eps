@@ -79,6 +79,8 @@ typedef struct
 
 enum BatteryState {Battery_START,Battery_OK, Battery_LOW}; // To help health check function sufficiently diagnose problems
 
+//Added by Aidan
+enum PowerState {Nominal, Safe, Low_Power,};
 
 int INA219_GetDeltaTime_ms();
 uint8_t INA219_Init(INA219_t *ina219, I2C_HandleTypeDef *i2c, uint8_t Address);

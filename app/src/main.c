@@ -2,6 +2,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <stdio.h>
 
 #include <zephyr/logging/log.h>
 #include <zephyr/kernel.h>
@@ -113,6 +114,45 @@ static size_t build_tx_plan(uint8_t local_node, struct tx_action *plan, size_t m
 	return 1U;
 }
 
+/**
+ * @brief:	The goal of this function is to change the power mode of the EPS board. The buit in INA 
+ * 			file may be enough, but I dont know for now. BAREONES CODE until flatsat/mcu provided for.
+ * 			testing as well as more detailed requirements. All code is subject to change 
+ * @param 	BatState - BatterySate enum from INA219.h, Obtained from INA219_HealthCheck
+ * @return 	enum PowerState - Returns a basic enum for now with the power levels listed in the Airtable
+ */
+enum PowerState ChangePowerState(enum BatteryState BatState){
+	switch(BatState){
+		case (Battery_START):
+			return Nominal;
+		case (Battery_OK):
+			return Safe;
+		case (Battery_LOW):
+			return Low_Power;
+		default:
+			return Nominal;
+	}
+}
+
+/**
+ * @brief:	The goal of this function is to print out the sensor data for the sensors/information
+ * 			that we have at the moment. Waiting for EPS Rev 1 to be finished, all code is subject
+ * 			to change.
+ * @param 	ina219 - Pointer to INA219 instance that we want to get our electrical data from. Only
+ * 			variable so far since I'm only aware of the INA219 and no other parts like a 
+ * 			thermistor
+ */
+void GetSensorData(INA219_t *ina219){
+	uint16_t current = INA219_ReadCurrent(ina219);
+	uint16_t voltage = INA219_ReadBusVoltage(ina219);
+	//Temp - whenever Noah finishes the EPS and adds a thermistor if theres not one already
+
+	printf("------------Sensor Data------------");
+	printf("Current: %d\nVoltage: %d\nTempurature: ", current, voltage);
+	printf("-----------------------------------");
+}
+
+//MAIN FUNCTION
 int main(void)
 {
 	uint8_t tx_buffer[EpsLinkMessage_size];
@@ -154,8 +194,14 @@ int main(void)
 
 	//Example of using provided funtions. Nothing works yet until we get an actual board working
 	uint16_t power = INA219_ReadPower(&Main_INA);
-
 	uint16_t current = INA219_ReadCurrent(&Main_INA);
+	float BatteryPercent = INA219_GetBatteryLife(&Battery_INA, 10000, 4000);
+	float BatteryLowThreshold = 25.00;
+
+	enum BatteryState BatteryLevel = INA219_HealthCheck(&Battery_INA, BatteryLowThreshold, BatteryPercent);
+
+	ChangePowerState(BatteryLevel);
+	GetSensorData(&Main_INA);
 
 	ret = can_link_init(on_can_message, NULL);
 	if (ret != 0) {
