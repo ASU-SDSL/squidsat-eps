@@ -162,47 +162,8 @@ int main(void)
 	size_t plan_idx = 0U;
 	int ret;
 
-	//INA219 instances - names subject to change
-	INA219_t Battery_INA;
-	INA219_t Main_INA;
-	INA219_t Three_Volt_INA;
-	INA219_t Twelve_Volt_INA;
-	INA219_t Three_Volt_Second_INA;
-	INA219_t Five_Volt_INA;
-	INA219_t Solar_Input_INA;
-	INA219_t Five_Volt_RF_INA;
-
-	//I2C typdef
-	I2C_HandleTypeDef hi2c1;
-	I2C_HandleTypeDef hi2c2;
-	I2C_HandleTypeDef hi2c3;
-	I2C_HandleTypeDef hi2c4;
-	I2C_HandleTypeDef hi2c5;
-	I2C_HandleTypeDef hi2c6;
-	I2C_HandleTypeDef hi2c7;
-	I2C_HandleTypeDef hi2c8;
-
-	//INA Initializations
-	while(!INA219_Init(&Battery_INA, &hi2c1, 0x44)){}
-	while(!INA219_Init(&Main_INA, &hi2c2, 0x40)){}
-	while(!INA219_Init(&Three_Volt_INA, &hi2c3, 0x45)){}
-	while(!INA219_Init(&Twelve_Volt_INA, &hi2c4, 0x49)){}
-	while(!INA219_Init(&Three_Volt_Second_INA, &hi2c5, 0x41)){}
-	while(!INA219_Init(&Five_Volt_INA, &hi2c6, 0x42)){}
-	while(!INA219_Init(&Solar_Input_INA, &hi2c7, 0x43)){}
-	while(!INA219_Init(&Five_Volt_RF_INA, &hi2c8, 0x45)){}
-
-	//Example of using provided funtions. Nothing works yet until we get an actual board working
-	uint16_t power = INA219_ReadPower(&Main_INA);
-	uint16_t current = INA219_ReadCurrent(&Main_INA);
-	float BatteryPercent = INA219_GetBatteryLife(&Battery_INA, 10000, 4000);
-	float BatteryLowThreshold = 25.00;
-
-	enum BatteryState BatteryLevel = INA219_HealthCheck(&Battery_INA, BatteryLowThreshold, BatteryPercent);
-
-	ChangePowerState(BatteryLevel);
-	GetSensorData(&Main_INA);
-
+	printk("Hello World!\n"); //Just So I dont get a warning when building. Will delete later
+	
 	ret = can_link_init(on_can_message, NULL);
 	if (ret != 0) {
 		LOG_ERR("CAN init failed: %d", ret);
@@ -217,6 +178,47 @@ int main(void)
 
 	LOG_INF("TX plan loaded for node=%u entries=%u", (unsigned int)can_link_node_id(),
 		(unsigned int)plan_len);
+
+//INA219 instances - names subject to change
+	// INA219_t Battery_INA;
+	// INA219_t Main_INA;
+	// INA219_t Three_Volt_INA;
+	// INA219_t Twelve_Volt_INA;
+	// INA219_t Three_Volt_Second_INA;
+	// INA219_t Five_Volt_INA;
+	// INA219_t Solar_Input_INA;
+	// INA219_t Five_Volt_RF_INA;
+
+	//I2C typdef
+	// I2C_HandleTypeDef hi2c1;
+	// I2C_HandleTypeDef hi2c2;
+	// I2C_HandleTypeDef hi2c3;
+	// I2C_HandleTypeDef hi2c4;
+	// I2C_HandleTypeDef hi2c5;
+	// I2C_HandleTypeDef hi2c6;
+	// I2C_HandleTypeDef hi2c7;
+	// I2C_HandleTypeDef hi2c8;
+
+	//INA Initializations
+	// while(!INA219_Init(&Battery_INA, &hi2c1, 0x44)){	}
+	// while(!INA219_Init(&Main_INA, &hi2c2, 0x40)){}
+	// while(!INA219_Init(&Three_Volt_INA, &hi2c3, 0x45)){}
+	// while(!INA219_Init(&Twelve_Volt_INA, &hi2c4, 0x49)){}
+	// while(!INA219_Init(&Three_Volt_Second_INA, &hi2c5, 0x41)){}
+	// while(!INA219_Init(&Five_Volt_INA, &hi2c6, 0x42)){}
+	// while(!INA219_Init(&Solar_Input_INA, &hi2c7, 0x43)){}
+	// while(!INA219_Init(&Five_Volt_RF_INA, &hi2c8, 0x45)){}
+
+	//Example of using provided funtions. Nothing works yet until we get an actual board working
+	// uint16_t power = INA219_ReadPower(&Main_INA);
+	// uint16_t current = INA219_ReadCurrent(&Main_INA);
+	// float BatteryPercent = INA219_GetBatteryLife(&Battery_INA, 10000, 4000);
+	// float BatteryLowThreshold = 25.00;
+
+	// enum BatteryState BatteryLevel = INA219_HealthCheck(&Battery_INA, BatteryLowThreshold, BatteryPercent);
+
+	// ChangePowerState(BatteryLevel);
+	// GetSensorData(&Main_INA);
 
 	while (1) {
 		size_t encoded_len = 0U;

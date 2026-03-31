@@ -1,5 +1,7 @@
 / {
 	chosen {
+		zephyr,console = &usart2;
+		zephyr,shell-uart = &usart2;
 		zephyr,canbus = &can1;
 	};
 };
@@ -16,5 +18,5 @@
 };
 
 &usb {
-	status = "disabled";
+	status = "okay";
 };
