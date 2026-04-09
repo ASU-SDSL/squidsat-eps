@@ -148,14 +148,26 @@ static size_t build_tx_plan(uint8_t local_node, struct tx_action *plan, size_t m
  * @param   val - struct used to store the values obtained from INA219 register. val.val1 is the whole number and
  *          val.val2 is the decimal.
  */
-void GetSensorData(const struct device *ina, enum sensor_channel type, struct sensor_value val){
-	sensor_sample_fetch(ina);
-	sensor_channel_get(ina, type, &val);
-	//Temp - whenever Noah finishes the EPS and adds a thermistor if theres not one already
+int GetSensorData(const struct device *ina, struct sensor_value voltage, struct sensor_value current, struct sensor_value power){
+	int init = sensor_sample_fetch(ina);
+	if (init) {
+		printf("Could not fetch sensor data.\n");
+		LOG_ERR("Could not fetch sensor data.\n");
+		return 0;
+	}
+
+	sensor_channel_get(ina, SENSOR_CHAN_VOLTAGE, &voltage);
+	sensor_channel_get(ina, SENSOR_CHAN_POWER, &current);
+	sensor_channel_get(ina, SENSOR_CHAN_CURRENT, &power);
+
+	printf("------------------------Sensor Data---------------------\nVoltage is: %fV, Current is: %fA, Power is: %fW\n--------------------------------------------------------\n", 
+		   sensor_value_to_double(&voltage),sensor_value_to_double(&current),sensor_value_to_double(&power));
 	
-	printf("------------Sensor Data---------------\n");
-	printf("Test Function, Voltage is V=%d.%06dV\n", val.val1, val.val2);
-	printf("--------------------------------------\n");
+	LOG_INF("------------------------Sensor Data---------------------\nVoltage is: %fV, Current is: %fA, Power is: %fW\n--------------------------------------------------------\n", 
+		   sensor_value_to_double(&voltage),sensor_value_to_double(&current),sensor_value_to_double(&power));
+	
+	
+	return 1;
 }
 
 //MAIN FUNCTION
@@ -168,7 +180,7 @@ int main(void)
 	size_t plan_idx = 0U;
 	int ret;
 
-	printk("Hello World!\n"); //Just So I dont get a warning when building. Will delete later
+	//printk("Hello World!\n"); //Just So I dont get a warning when building. Will delete later
 	
 	ret = can_link_init(on_can_message, NULL);
 	if (ret != 0) {
@@ -187,7 +199,7 @@ int main(void)
 
 	//New intatiation of a test INA struct based off the Zephyr INA219 API. Ignore the error squiggles
 	const struct device *inaTest = DEVICE_DT_GET(INA_MAIN);
-	struct sensor_value v;
+	struct sensor_value voltage, current, power;
 
 	while (1) {
 		size_t encoded_len = 0U;
@@ -195,8 +207,14 @@ int main(void)
 		bool encoded_ok;
 
 		//Testing that the INA219 breakout board can be read and my function works - Aidan Doyle
-		GetSensorData(inaTest, SENSOR_CHAN_VOLTAGE, v);
-		//printf("Holy Guac did this work? V=%d.%06dV\n", v.val1, v.val2);
+		if (!device_is_ready(inaTest)) {
+			printf("Device %s is not ready.\n", inaTest->name);
+			LOG_ERR("Device %s is not ready.\n", inaTest->name);
+		}else{
+			printf("Getting Data...");
+			LOG_INF("Getting Data...");
+			GetSensorData(inaTest, voltage, current, power);
+		}
 
 		if (action.broadcast) {
 			encoded_ok = encode_broadcast_message(seq, tx_buffer, &encoded_len);
@@ -209,7 +227,7 @@ int main(void)
 			continue;
 		}
 
-		if(seq < 2){ //Just for debugging, so the seriel monitor doesnt get spammed with can errors
+		if(seq < 2){ //Just for debugging, so the seriel monitor doesnt get spammed with can errors - Aidan
 		if (action.broadcast) {
 			ret = can_link_send_broadcast(tx_buffer, encoded_len);
 			if (ret != 0) {
