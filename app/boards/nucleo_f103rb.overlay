@@ -6,6 +6,17 @@
 	};
 };
 
+&can1 {
+	pinctrl-0 = <&can_rx_pa11 &can_tx_pa12>;
+	pinctrl-names = "default";
+	bitrate = <125000>;
+	status = "okay";
+
+	can-transceiver {
+		max-bitrate = <1000000>;
+	};
+};
+
 &i2c1 {
 	status = "okay";
 	clock-frequency = <I2C_BITRATE_STANDARD>;
@@ -17,16 +28,53 @@
 		shunt-milliohm = <100>;
 		lsb-microamp = <100>;
 	};
-};
 
-&can1 {
-	pinctrl-0 = <&can_rx_pa11 &can_tx_pa12>;
-	pinctrl-names = "default";
-	bitrate = <125000>;
-	status = "okay";
+	ina219_1: ina219@41 { 
+		compatible = "ti,ina219";
+		reg = <0x41>;
 
-	can-transceiver {
-		max-bitrate = <1000000>;
+		shunt-milliohm = <100>;
+		lsb-microamp = <100>;
+	};
+
+	ina219_2: ina219@42 { 
+		compatible = "ti,ina219";
+		reg = <0x42>;
+
+		shunt-milliohm = <100>;
+		lsb-microamp = <100>;
+	};
+
+	ina219_3: ina219@43 { 
+		compatible = "ti,ina219";
+		reg = <0x43>;
+
+		shunt-milliohm = <100>;
+		lsb-microamp = <100>;
+	};
+
+	ina219_4: ina219@44 { 
+		compatible = "ti,ina219";
+		reg = <0x44>;
+
+		shunt-milliohm = <100>;
+		lsb-microamp = <100>;
+	};
+
+	ina219_5: ina219@45 { 
+		compatible = "ti,ina219";
+		reg = <0x45>;
+
+		shunt-milliohm = <100>;
+		lsb-microamp = <100>;
+	};
+
+	ina219_6: ina219@46 { 
+		compatible = "ti,ina219";
+		reg = <0x46>;
+
+		shunt-milliohm = <100>;
+		lsb-microamp = <100>;
 	};
 };
 

@@ -15,6 +15,12 @@
 #include "proto/eps_link.pb.h"
 
 #define INA_MAIN DT_NODELABEL(ina219_0)
+#define INA_TPS3_3V DT_NODELABEL(ina219_1)
+#define INA_TPS5V DT_NODELABEL(ina219_2)
+#define INA_SOLAR DT_NODELABEL(ina219_3)
+#define INA_MPPC DT_NODELABEL(ina219_4)
+#define INA_5VRF DT_NODELABEL(ina219_5)
+#define INA_5VRF DT_NODELABEL(ina219_6)
 
 LOG_MODULE_REGISTER(eps, LOG_LEVEL_INF);
 
@@ -148,7 +154,7 @@ static size_t build_tx_plan(uint8_t local_node, struct tx_action *plan, size_t m
  * @param   val - struct used to store the values obtained from INA219 register. val.val1 is the whole number and
  *          val.val2 is the decimal.
  */
-int GetSensorData(const struct device *ina, struct sensor_value voltage, struct sensor_value current, struct sensor_value power){
+int GetSensorData(const struct device *ina, struct sensor_value voltage, struct sensor_value vshunt, struct sensor_value current, struct sensor_value power){
 	int init = sensor_sample_fetch(ina);
 	if (init) {
 		printf("Could not fetch sensor data.\n");
@@ -157,14 +163,15 @@ int GetSensorData(const struct device *ina, struct sensor_value voltage, struct 
 	}
 
 	sensor_channel_get(ina, SENSOR_CHAN_VOLTAGE, &voltage);
+	sensor_channel_get(ina, SENSOR_CHAN_VSHUNT, &vshunt);
 	sensor_channel_get(ina, SENSOR_CHAN_POWER, &current);
 	sensor_channel_get(ina, SENSOR_CHAN_CURRENT, &power);
 
-	printf("------------------------Sensor Data---------------------\nVoltage is: %fV, Current is: %fA, Power is: %fW\n--------------------------------------------------------\n", 
-		   sensor_value_to_double(&voltage),sensor_value_to_double(&current),sensor_value_to_double(&power));
+	printf("------------------------Sensor Data---------------------\nVoltage is: %fV, Current is: %fA, Power is: %fW, Shunt Voltage is: %f\n--------------------------------------------------------\n", 
+		   sensor_value_to_double(&voltage),sensor_value_to_double(&current),sensor_value_to_double(&power),sensor_value_to_double(&vshunt));
 	
-	LOG_INF("------------------------Sensor Data---------------------\nVoltage is: %fV, Current is: %fA, Power is: %fW\n--------------------------------------------------------\n", 
-		   sensor_value_to_double(&voltage),sensor_value_to_double(&current),sensor_value_to_double(&power));
+	LOG_INF("------------------------Sensor Data---------------------\nVoltage is: %fV, Current is: %fA, Power is: %fW, Shunt Voltage is: %f\n--------------------------------------------------------\n", 
+		   sensor_value_to_double(&voltage),sensor_value_to_double(&current),sensor_value_to_double(&power),sensor_value_to_double(&vshunt));
 	
 	
 	return 1;
@@ -198,8 +205,15 @@ int main(void)
 		(unsigned int)plan_len);
 
 	//New intatiation of a test INA struct based off the Zephyr INA219 API. Ignore the error squiggles
-	const struct device *inaTest = DEVICE_DT_GET(INA_MAIN);
-	struct sensor_value voltage, current, power;
+	const struct device *inaMain = DEVICE_DT_GET(INA_MAIN);
+	const struct device *inaTPS3_3V = DEVICE_DT_GET(INA_TPS3_3V);
+	const struct device *inaTPS5V = DEVICE_DT_GET(INA_TPS5V);
+	const struct device *inaSolar = DEVICE_DT_GET(INA_SOLAR);
+	const struct device *inaMPPC = DEVICE_DT_GET(INA_MPPC);
+	const struct device *ina5VRF = DEVICE_DT_GET(INA_5VRF);
+	const struct device *ina12V = DEVICE_DT_GET(INA_12V);
+	
+	struct sensor_value voltage, vshunt, current, power; //Temporary storage variables, used in the GetSensorData() function. TODO, find a way to store all INAs' data, only if needed though
 
 	while (1) {
 		size_t encoded_len = 0U;
@@ -213,7 +227,7 @@ int main(void)
 		}else{
 			printf("Getting Data...");
 			LOG_INF("Getting Data...");
-			GetSensorData(inaTest, voltage, current, power);
+			GetSensorData(inaTest, voltage, vshunt, current, power);
 		}
 
 		if (action.broadcast) {
