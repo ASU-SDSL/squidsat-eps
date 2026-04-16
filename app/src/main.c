@@ -7,20 +7,13 @@
 #include <zephyr/logging/log.h>
 #include <zephyr/kernel.h>
 #include <zephyr/sys/util.h>
-#include <zephyr/drivers/sensor.h>
 
 #include <pb_decode.h>
 #include <pb_encode.h>
 #include "can_link.h"
 #include "proto/eps_link.pb.h"
+#include "sensor_util.h"
 
-#define INA_MAIN DT_NODELABEL(ina219_0)
-#define INA_TPS3_3V DT_NODELABEL(ina219_1)
-#define INA_TPS5V DT_NODELABEL(ina219_2)
-#define INA_SOLAR DT_NODELABEL(ina219_3)
-#define INA_MPPC DT_NODELABEL(ina219_4)
-#define INA_5VRF DT_NODELABEL(ina219_5)
-#define INA_5VRF DT_NODELABEL(ina219_6)
 
 LOG_MODULE_REGISTER(eps, LOG_LEVEL_INF);
 
@@ -28,6 +21,17 @@ struct tx_action {
 	bool broadcast;
 	uint8_t target_node;
 };
+
+//New intatiation of a test INA struct based off the Zephyr INA219 API. Ignore the error squiggles
+const struct device *inaMain = DEVICE_DT_GET(INA_MAIN);
+// const struct device *inaTPS3_3V = DEVICE_DT_GET(INA_TPS3_3V);
+// const struct device *inaTPS5V = DEVICE_DT_GET(INA_TPS5V);
+// const struct device *inaSolar = DEVICE_DT_GET(INA_SOLAR);
+// const struct device *inaMPPC = DEVICE_DT_GET(INA_MPPC);
+// const struct device *ina5VRF = DEVICE_DT_GET(INA_5VRF);
+// const struct device *ina12V = DEVICE_DT_GET(INA_12V);
+
+static struct sensor_value voltage, vshunt, current, power; //Temporary storage variables, used in the GetSensorData() function. TODO, find a way to store all INAs' data, only if needed though
 
 static bool encode_unicast_message(uint32_t seq, uint8_t *buffer, size_t *encoded_len)
 {
@@ -122,60 +126,6 @@ static size_t build_tx_plan(uint8_t local_node, struct tx_action *plan, size_t m
 	return 1U;
 }
 
-/**
- * @brief:	The goal of this function is to change the power mode of the EPS board. The buit in INA 
- * 			file may be enough, but I dont know for now. BAREONES CODE until flatsat/mcu provided for.
- * 			testing as well as more detailed requirements. All code is subject to change 
- * @param 	value - gets the struct of the value used to determine power state. value.val1 is the whole
- * 			number, while value.val2 (if used) is the decimal
- * @return 	enum PowerState - Returns a basic enum for now with the power levels listed in the Airtable
- */
-// enum PowerState ChangePowerState(struct sensor_value value){
-//  //Just an example, these values dont mean or do anything yet
-// 	switch(value.val1){
-// 		case (5):
-// 			return Nominal;
-// 		case (3):
-// 			return Safe;
-// 		case (2.9):
-// 			return Low_Power;
-// 		default:
-// 			return Nominal;
-// 	}
-// }
-
-/**
- * @brief:	The goal of this function is to print out the sensor data for the sensors/information
- * 			that we have at the moment. Waiting for EPS Rev 1 to be finished, all code is subject
- * 			to change.
- * @param 	ina - Pointer to INA219 instance that we want to get our electrical data from. 
- * @param   type - Zephyr Sensor enum. For the INA all we need is SENSOR_CHAN_VOLTAGE, SENSOR_CHAN_CURRENT, and
- * 			SENSOR_CHAN_POWER. Shunt voltage can be obtained the same way if needed.
- * @param   val - struct used to store the values obtained from INA219 register. val.val1 is the whole number and
- *          val.val2 is the decimal.
- */
-int GetSensorData(const struct device *ina, struct sensor_value voltage, struct sensor_value vshunt, struct sensor_value current, struct sensor_value power){
-	int init = sensor_sample_fetch(ina);
-	if (init) {
-		printf("Could not fetch sensor data.\n");
-		LOG_ERR("Could not fetch sensor data.\n");
-		return 0;
-	}
-
-	sensor_channel_get(ina, SENSOR_CHAN_VOLTAGE, &voltage);
-	sensor_channel_get(ina, SENSOR_CHAN_VSHUNT, &vshunt);
-	sensor_channel_get(ina, SENSOR_CHAN_POWER, &current);
-	sensor_channel_get(ina, SENSOR_CHAN_CURRENT, &power);
-
-	printf("------------------------Sensor Data---------------------\nVoltage is: %fV, Current is: %fA, Power is: %fW, Shunt Voltage is: %f\n--------------------------------------------------------\n", 
-		   sensor_value_to_double(&voltage),sensor_value_to_double(&current),sensor_value_to_double(&power),sensor_value_to_double(&vshunt));
-	
-	LOG_INF("------------------------Sensor Data---------------------\nVoltage is: %fV, Current is: %fA, Power is: %fW, Shunt Voltage is: %f\n--------------------------------------------------------\n", 
-		   sensor_value_to_double(&voltage),sensor_value_to_double(&current),sensor_value_to_double(&power),sensor_value_to_double(&vshunt));
-	
-	
-	return 1;
-}
 
 //MAIN FUNCTION
 int main(void)
@@ -204,16 +154,6 @@ int main(void)
 	LOG_INF("TX plan loaded for node=%u entries=%u", (unsigned int)can_link_node_id(),
 		(unsigned int)plan_len);
 
-	//New intatiation of a test INA struct based off the Zephyr INA219 API. Ignore the error squiggles
-	const struct device *inaMain = DEVICE_DT_GET(INA_MAIN);
-	const struct device *inaTPS3_3V = DEVICE_DT_GET(INA_TPS3_3V);
-	const struct device *inaTPS5V = DEVICE_DT_GET(INA_TPS5V);
-	const struct device *inaSolar = DEVICE_DT_GET(INA_SOLAR);
-	const struct device *inaMPPC = DEVICE_DT_GET(INA_MPPC);
-	const struct device *ina5VRF = DEVICE_DT_GET(INA_5VRF);
-	const struct device *ina12V = DEVICE_DT_GET(INA_12V);
-	
-	struct sensor_value voltage, vshunt, current, power; //Temporary storage variables, used in the GetSensorData() function. TODO, find a way to store all INAs' data, only if needed though
 
 	while (1) {
 		size_t encoded_len = 0U;
@@ -221,13 +161,13 @@ int main(void)
 		bool encoded_ok;
 
 		//Testing that the INA219 breakout board can be read and my function works - Aidan Doyle
-		if (!device_is_ready(inaTest)) {
-			printf("Device %s is not ready.\n", inaTest->name);
-			LOG_ERR("Device %s is not ready.\n", inaTest->name);
+		if (!device_is_ready(inaMain)) {
+			printf("Device %s is not ready.\n", inaMain->name);
+			LOG_ERR("Device %s is not ready.\n", inaMain->name);
 		}else{
 			printf("Getting Data...");
 			LOG_INF("Getting Data...");
-			GetSensorData(inaTest, voltage, vshunt, current, power);
+			GetSensorData(inaMain, voltage, vshunt, current, power);
 		}
 
 		if (action.broadcast) {
