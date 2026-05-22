@@ -12,9 +12,14 @@
 // #define INA_5VRF DT_NODELABEL(ina219_5)
 // #define INA_5VRF DT_NODELABEL(ina219_6)
 
+// typedef struct{
+//     const struct device *ina;
+//     struct sensor_value bus_voltage;
+//     struct sensor_value current;
+//     struct sensor_value power;
+// }INA_Data;
 
 /**
- * @author  Aidan Doyle / Doyle-Squared
  * @brief:	The goal of this function is to change the power mode of the EPS board. The buit in INA 
  * 			file may be enough, but I dont know for now. BAREONES CODE until flatsat/mcu provided for.
  * 			testing as well as more detailed requirements. All code is subject to change 
@@ -26,7 +31,6 @@
 
 
 /**
- * @author  Aidan Doyle / Doyle-Squared
  * @brief:	The goal of this function is to print out the sensor data for the sensors/information
  * 			that we have at the moment. Waiting for EPS Rev 1 to be finished, all code is subject
  * 			to change.

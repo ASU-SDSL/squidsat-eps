@@ -1,4 +1,5 @@
-#include "ntcle101.h" 
+#include "nka103c1b1.h"
+
 //TODO: Get and congigure the adc value. Research DMA again cause you'll probably forget
 
 /* Beta Parameter Equation for getting the tempurature
@@ -9,13 +10,12 @@
 *   R_reference * (V_ADC/VCC - V_ADC)   or   R_reference * ((ADC_max/ADC_reading) - 1)
 */
 
-//TODO Make variables static and screaming case :) since Gio said so
-static const float R_REF = 1000.0; //1k Ohms
-static const float BETA_COEF = 3534.0; //Kelvin
+static const float R_REF = 10000.0; //10k Ohms
+static const float BETA_COEF = 3977.0; //Kelvin
 static const float TEMP_NOM = 25.0;
 static const float ADC_MAX = 4095.0;
 
-float getBattTemp(int ADC_VALUE){
+float getEPSTemp(int ADC_VALUE){
     //Getting the measured Resistance of the Thermistor
     float R_therm = R_REF * ((ADC_MAX/ADC_VALUE) - 1);
 

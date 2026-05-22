@@ -1,5 +1,5 @@
-#ifndef NTCLE101_H
-#define NTCLE101_H
+#ifndef NKA103C1B1_H
+#define NKA103C1B1_H
 
 #include <stdint.h>
 #include <math.h>
@@ -12,6 +12,6 @@
 *   R_reference * (V_ADC/VCC - V_ADC)   or   R_reference * ((ADC_max/ADC_reading) - 1)
 */
 
-float getBattTemp(int ADC_Value);
+float getEPSTemp(int ADC_Value);
 
 #endif
