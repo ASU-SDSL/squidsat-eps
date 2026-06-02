@@ -7,12 +7,19 @@
 #include <zephyr/logging/log.h>
 #include <zephyr/kernel.h>
 #include <zephyr/sys/util.h>
+#include <zephyr/drivers/adc.h>
+#include <zephyr/devicetree.h>
 
 #include <pb_decode.h>
 #include <pb_encode.h>
 #include "can_link.h"
 #include "proto/eps_link.pb.h"
 #include "sensor_util.h"
+#include "nka103c1b1.h"
+
+#define ADC_NODE DT_PATH(zephyr_user)
+
+static const struct adc_dt_spec adc_channel = ADC_DT_SPEC_GET_BY_IDX(ADC_NODE, 0);
 
 
 LOG_MODULE_REGISTER(eps, LOG_LEVEL_INF);
@@ -22,16 +29,6 @@ struct tx_action {
 	uint8_t target_node;
 };
 
-//New intatiation of a test INA struct based off the Zephyr INA219 API. Ignore the error squiggles
-const struct device *inaMain = DEVICE_DT_GET(INA_MAIN);
-// const struct device *inaTPS3_3V = DEVICE_DT_GET(INA_TPS3_3V);
-// const struct device *inaTPS5V = DEVICE_DT_GET(INA_TPS5V);
-// const struct device *inaSolar = DEVICE_DT_GET(INA_SOLAR);
-// const struct device *inaMPPC = DEVICE_DT_GET(INA_MPPC);
-// const struct device *ina5VRF = DEVICE_DT_GET(INA_5VRF);
-// const struct device *ina12V = DEVICE_DT_GET(INA_12V);
-
-static struct sensor_value voltage, vshunt, current, power; //Temporary storage variables, used in the GetSensorData() function. TODO, find a way to store all INAs' data, only if needed though
 
 static bool encode_unicast_message(uint32_t seq, uint8_t *buffer, size_t *encoded_len)
 {
@@ -137,7 +134,6 @@ int main(void)
 	size_t plan_idx = 0U;
 	int ret;
 
-	//printk("Hello World!\n"); //Just So I dont get a warning when building. Will delete later
 	
 	ret = can_link_init(on_can_message, NULL);
 	if (ret != 0) {
@@ -154,21 +150,32 @@ int main(void)
 	LOG_INF("TX plan loaded for node=%u entries=%u", (unsigned int)can_link_node_id(),
 		(unsigned int)plan_len);
 
+	//ADC Code for the EPS Thermistor
+	int fault;
+    uint32_t raw_value = 0;
+
+    if (!adc_is_ready_dt(&adc_channel)) {
+        //LOG_ERR("ADC controller not ready\n");
+        return 0;
+    }
+
+    fault = adc_channel_setup_dt(&adc_channel);
+    if (fault < 0) {
+        //LOG_ERR("Could not setup channel (%d)\n", fault);
+        return 0;
+    }
+
+    struct adc_sequence sequence = {
+        .channels = BIT(adc_channel.channel_id),
+        .buffer = &raw_value,
+        .buffer_size = sizeof(raw_value),
+        .resolution = adc_channel.resolution,
+    };
 
 	while (1) {
 		size_t encoded_len = 0U;
 		struct tx_action action = tx_plan[plan_idx];
 		bool encoded_ok;
-
-		//Testing that the INA219 breakout board can be read and my function works - Aidan Doyle
-		if (!device_is_ready(inaMain)) {
-			printf("Device %s is not ready.\n", inaMain->name);
-			LOG_ERR("Device %s is not ready.\n", inaMain->name);
-		}else{
-			printf("Getting Data...");
-			LOG_INF("Getting Data...");
-			GetSensorData(inaMain, voltage, vshunt, current, power);
-		}
 
 		if (action.broadcast) {
 			encoded_ok = encode_broadcast_message(seq, tx_buffer, &encoded_len);
@@ -181,7 +188,7 @@ int main(void)
 			continue;
 		}
 
-		if(seq < 2){ //Just for debugging, so the seriel monitor doesnt get spammed with can errors - Aidan
+		
 		if (action.broadcast) {
 			ret = can_link_send_broadcast(tx_buffer, encoded_len);
 			if (ret != 0) {
@@ -199,9 +206,19 @@ int main(void)
 					action.target_node, (unsigned int)encoded_len);
 			}
 		}
-		}
+		
 		seq++;
 		plan_idx = (plan_idx + 1U) % plan_len;
+
+		fault = adc_read_dt(&adc_channel, &sequence);
+    	if (fault < 0) {
+        	//LOG_ERR("Could not read (%d)\n", fault);
+        	return 0;
+    	} 
+		
+		float temp = getEPSTemp(raw_value);
+		printk("EPS temperature is: %f", temp);
+
 		k_msleep(CONFIG_CAN_LINK_TX_PERIOD_MS);
 	}
 }

@@ -4,7 +4,13 @@
 		zephyr,shell-uart = &usart2;
 		zephyr,canbus = &can1;
 	};
+
+	zephyr,user {
+        /* Points to ADC1, Channel 1 (PA1 pin on STM32F103) */
+        io-channels = <&adc1 1>;
+    };
 };
+
 
 &can1 {
 	pinctrl-0 = <&can_rx_pa11 &can_tx_pa12>;
@@ -15,6 +21,21 @@
 	can-transceiver {
 		max-bitrate = <1000000>;
 	};
+};
+
+&adc1 {
+    #address-cells = <1>;
+    #size-cells = <0>;
+    status = "okay";
+    
+    /* Configure Channel 1 */
+    channel@1 {
+        reg = <1>;
+        zephyr,gain = "ADC_GAIN_1";
+        zephyr,reference = "ADC_REF_INTERNAL";
+        zephyr,acquisition-time = <ADC_ACQ_TIME_DEFAULT>;
+        zephyr,resolution = <12>;
+    };
 };
 
 &i2c1 {
@@ -72,6 +93,22 @@
 	ina219_6: ina219@46 { 
 		compatible = "ti,ina219";
 		reg = <0x46>;
+
+		shunt-milliohm = <100>;
+		lsb-microamp = <100>;
+	};
+
+	ina219_7: ina219@47 { 
+		compatible = "ti,ina219";
+		reg = <0x47>;
+
+		shunt-milliohm = <100>;
+		lsb-microamp = <100>;
+	};
+
+	ina219_8: ina219@48 { 
+		compatible = "ti,ina219";
+		reg = <0x48>;
 
 		shunt-milliohm = <100>;
 		lsb-microamp = <100>;

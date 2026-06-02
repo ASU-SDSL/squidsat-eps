@@ -12,6 +12,6 @@
 *   R_reference * (V_ADC/VCC - V_ADC)   or   R_reference * ((ADC_max/ADC_reading) - 1)
 */
 
-float getEPSTemp(int ADC_Value);
+float getEPSTemp(uint32_t ADC_Value);
 
 #endif
