@@ -14,4 +14,6 @@ target_sources(app PRIVATE
 	src/can_link.c
 	src/sensor_util.c
 	src/nka103c1b1.c
+	src/ntcle101.c
+	src/set_rail.c
 )

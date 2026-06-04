@@ -12,6 +12,6 @@
 *   R_reference * (V_ADC/VCC - V_ADC)   or   R_reference * ((ADC_max/ADC_reading) - 1)
 */
 
-float getBattTemp(int ADC_Value);
+float getBattTemp(uint32_t ADC_Value);
 
 #endif

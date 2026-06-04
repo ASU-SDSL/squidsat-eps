@@ -2,6 +2,9 @@
 #define INA219_UTIL_H
 
 #include <zephyr/drivers/sensor.h>
+#include <zephyr/logging/log.h>
+#include <zephyr/kernel.h>
+#include <zephyr/sys/util.h>
 #include "ntcle101.h" 
 #include <stdint.h>
 
@@ -41,13 +44,20 @@ int readSingleINA(const struct device *ina, int16_t *voltage, int16_t *vshunt, i
 
 /**
  * @brief:	The goal of this function is to read all the EPS INA's and store them in a data buffer to be used for a heartbeat. 
- * @param   inaX - Pointer to INA instance instatiated in the .c file
  * @param   inaStorage - Data buffer to store the data of all the INA's
  * 
  * @return  Returns a 1 if the method was able to read and store the data
  */
-int readAllINA(const struct device *ina1, const struct device *ina2, const struct device *ina3,
-                const struct device *ina4, const struct device *ina5, const struct device *ina6, 
-                const struct device *ina7, const struct device *ina8, const struct device *ina9, int16_t inaStorage[]);
+int readAllINA(int16_t inaStorage[]);
+
+
+/**
+ * @brief Read information from all the sensors (INAs and thermistors) and print the information in a readable format
+ * 
+ * @param inaStorage - Data buffer to store the data of all the INA's
+ * @param rawTempADC - ADC value from the Battery Board thermistor, to be used for the getBattTemp function
+ * @return int - Returns 1 if no errors
+ */
+int getSensorData(int16_t inaStorage[], uint32_t rawTempADC);
 
 #endif

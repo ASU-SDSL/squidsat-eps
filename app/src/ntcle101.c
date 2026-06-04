@@ -15,15 +15,15 @@ static const float BETA_COEF = 3534.0; //Kelvin
 static const float TEMP_NOM = 25.0;
 static const float ADC_MAX = 4095.0;
 
-float getBattTemp(int ADC_VALUE){
+float getBattTemp(uint32_t ADC_VALUE){
     //Getting the measured Resistance of the Thermistor
     float R_therm = R_REF * ((ADC_MAX/ADC_VALUE) - 1);
 
     float temp_k = R_therm/R_REF;
     temp_k = log(temp_k);
     temp_k /= BETA_COEF;
-    temp_k += 1.0 / (TEMP_NOM + 273.15);
-    temp_k = 1.0 / temp_k;
+    temp_k += (float)1.0 / (TEMP_NOM + (float)273.15);
+    temp_k = (float)1.0 / temp_k;
 
-    return (temp_k - 273.15);
+    return (temp_k - (float)273.15);
 }

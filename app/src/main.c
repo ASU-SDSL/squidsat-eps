@@ -16,6 +16,7 @@
 #include "proto/eps_link.pb.h"
 #include "sensor_util.h"
 #include "nka103c1b1.h"
+#include "ntcle101.h" 
 
 #define ADC_NODE DT_PATH(zephyr_user)
 
@@ -216,8 +217,8 @@ int main(void)
         	return 0;
     	} 
 		
-		float temp = getEPSTemp(raw_value);
-		printk("EPS temperature is: %f", temp);
+		// float temp = getBattTemp(raw_value);
+		// printk("Batt temperature is: %f", temp);
 
 		k_msleep(CONFIG_CAN_LINK_TX_PERIOD_MS);
 	}

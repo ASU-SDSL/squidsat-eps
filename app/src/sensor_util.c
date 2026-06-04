@@ -12,19 +12,6 @@ const struct device *ina12V = DEVICE_DT_GET(INA_12V);
 const struct device *inaMPPCA = DEVICE_DT_GET(INA_MPPCA);
 const struct device *inaMPPCB = DEVICE_DT_GET(INA_MPPCB);
 
-// enum PowerState ChangePowerState(struct sensor_value value){
-//  //Just an example, these values dont mean or do anything yet
-// 	switch(value.val1){
-// 		case (5):
-// 			return Nominal;
-// 		case (3):
-// 			return Safe;
-// 		case (2.9):
-// 			return Low_Power;
-// 		default:
-// 			return Nominal;
-// 	}
-// }
 
 
 int readSingleINA(const struct device *ina, int16_t *voltage, int16_t *vshunt, int16_t *current, int16_t *power){
@@ -53,9 +40,7 @@ int readSingleINA(const struct device *ina, int16_t *voltage, int16_t *vshunt, i
 }
 
 
-int readAllINA(const struct device *ina1, const struct device *ina2, const struct device *ina3,
-                const struct device *ina4, const struct device *ina5, const struct device *ina6, 
-                const struct device *ina7, const struct device *ina8, const struct device *ina9, int16_t inaStorage[]){
+int readAllINA(int16_t inaStorage[]){
 	
 	readSingleINA(inaMain, &inaStorage[0], &inaStorage[1], &inaStorage[2], &inaStorage[3]);
 	readSingleINA(inaTPS3_3V, &inaStorage[4], &inaStorage[5], &inaStorage[6], &inaStorage[7]);
@@ -67,5 +52,20 @@ int readAllINA(const struct device *ina1, const struct device *ina2, const struc
 	readSingleINA(inaMPPCA, &inaStorage[28], &inaStorage[29], &inaStorage[30], &inaStorage[31]);
 	readSingleINA(inaMPPCB, &inaStorage[32], &inaStorage[33], &inaStorage[34], &inaStorage[35]);
 
+	return 1;
+}
+
+
+int getSensorData(int16_t inaStorage[], uint32_t rawTempADC){
+	float temperature = getBattTemp(rawTempADC);
+
+	if(readAllINA(inaStorage)){
+		for (int i = 0; i < 9; i+=4){
+			printk("INA Main: %dmV, %dmV (vshunt), %dmA, %dmW\n", inaStorage[i], inaStorage[i+1], inaStorage[i+2], inaStorage[i+3]);
+		}
+	}else{
+		return 0;
+	}
+	printk("Temperature of the Batt Board: %f\n", (double)temperature);
 	return 1;
 }

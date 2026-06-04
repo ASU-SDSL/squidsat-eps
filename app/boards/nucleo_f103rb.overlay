@@ -9,6 +9,49 @@
         /* Points to ADC1, Channel 1 (PA1 pin on STM32F103) */
         io-channels = <&adc1 1>;
     };
+
+	aliases {
+		rail0 = &rail_0;
+		rail1 = &rail_1;
+		rail2 = &rail_2;
+		rail3 = &rail_3;
+		rail4 = &rail_4;
+		rail5 = &rail_5;
+	};
+
+	rails {
+		compatible = "gpio-leds";
+
+		rail_0: rail0{
+			gpios = <&gpioc 2 GPIO_ACTIVE_HIGH>;
+			label = "PAYLOAD RAIL";
+		};
+
+		rail_1: rail1{
+			gpios = <&gpioc 4 GPIO_ACTIVE_HIGH>;
+			label = "LUMO RAIL";
+		};
+
+		rail_2: rail2{
+			gpios = <&gpioc 6 GPIO_ACTIVE_HIGH>;
+			label = "PEEC RAIL";
+		};
+
+		rail_3: rail3{
+			gpios = <&gpioc 9 GPIO_ACTIVE_HIGH>;
+			label = "DANT RAIL";
+		};
+
+		rail_4: rail4{
+			gpios = <&gpioc 10 GPIO_ACTIVE_HIGH>;
+			label = "NEXTAGE RAIL";
+		};
+
+		rail_5: rail5{
+			gpios = <&gpioc 12 GPIO_ACTIVE_HIGH>;
+			label = "NDANT RAIL";
+		};
+	};
 };
 
 
@@ -36,6 +79,10 @@
         zephyr,acquisition-time = <ADC_ACQ_TIME_DEFAULT>;
         zephyr,resolution = <12>;
     };
+};
+
+&gpioc {
+	status = "okay";
 };
 
 &i2c1 {
