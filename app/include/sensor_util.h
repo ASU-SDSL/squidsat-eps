@@ -1,5 +1,5 @@
-#ifndef INA219_UTIL_H
-#define INA219_UTIL_H
+#ifndef SENSOR_UTIL_H
+#define SENSOR_UTIL_H
 
 #include <zephyr/drivers/sensor.h>
 #include <zephyr/logging/log.h>
@@ -32,15 +32,13 @@
 
 /**
  * @brief:	The goal of this function is to read the value of a single INA sensor and store it in four 16 bit variables.
- * @param 	ina - Pointer to INA219 instance that we want to get our electrical data from. 
- * @param   voltage - Pointer to the signed voltage variable
- * @param   vshunt - Pointer to the signed vshunt variable
- * @param   current - Pointer to the signed current variable
- * @param   power - Pointer to the signed power variable
+ * @param 	ina Pointer to INA219 instance that we want to get our electrical data from. 
+ * @param   inaBuffer Buffer to store the INA Data following the format: Voltage, VShunt, Current, Power
+ * @param   indx The starting index of where our data will be stored in the INA buffer. Added to make readAllINA() more simple
  * 
  * @return  Returns a 1 if the method was able to read and store the data
  */
-int readSingleINA(const struct device *ina, int16_t *voltage, int16_t *vshunt, int16_t *current, int16_t *power);
+int readSingleINA(const struct device *ina, int16_t inaBuffer[], uint8_t indx);
 
 /**
  * @brief:	The goal of this function is to read all the EPS INA's and store them in a data buffer to be used for a heartbeat. 
@@ -54,9 +52,9 @@ int readAllINA(int16_t inaStorage[]);
 /**
  * @brief Read information from all the sensors (INAs and thermistors) and print the information in a readable format
  * 
- * @param inaStorage - Data buffer to store the data of all the INA's
- * @param rawTempADC - ADC value from the Battery Board thermistor, to be used for the getBattTemp function
- * @return int - Returns 1 if no errors
+ * @param inaStorage Data buffer to store the data of all the INA's
+ * @param rawTempADC ADC value from the Battery Board thermistor, to be used for the getBattTemp function
+ * @return int Returns 1 if no errors
  */
 int getSensorData(int16_t inaStorage[], uint32_t rawTempADC);
 

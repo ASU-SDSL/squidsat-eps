@@ -14,7 +14,7 @@ const struct device *inaMPPCB = DEVICE_DT_GET(INA_MPPCB);
 
 
 
-int readSingleINA(const struct device *ina, int16_t *voltage, int16_t *vshunt, int16_t *current, int16_t *power){
+int readSingleINA(const struct device *ina, int16_t inaBuffer[], uint8_t indx){
 	int init = sensor_sample_fetch(ina);
 	if (init) {
 		printf("Could not fetch sensor data.\n");
@@ -31,10 +31,10 @@ int readSingleINA(const struct device *ina, int16_t *voltage, int16_t *vshunt, i
 	sensor_channel_get(ina, SENSOR_CHAN_POWER, &tempCurrent);
 	sensor_channel_get(ina, SENSOR_CHAN_CURRENT, &tempPower);
 
-	*voltage = (tempVoltage.val1 * 1000) + (tempVoltage.val2 / 1000); //mV
-	*current = (tempVshunt.val1 * 1000) + (tempVshunt.val2 / 1000); //mA
-	*vshunt = (tempCurrent.val1 * 1000) + (tempCurrent.val2 / 1000); //mA
-	*power = (tempPower.val1 * 1000) + (tempPower.val2 / 1000); //mA
+	inaBuffer[indx] = (tempVoltage.val1 * 1000) + (tempVoltage.val2 / 1000); 		//mV 	VOLTAGE
+	inaBuffer[indx + 1] = (tempVshunt.val1 * 1000) + (tempVshunt.val2 / 1000); 		//mV	SHUNT VOLTAGE
+	inaBuffer[indx + 2] = (tempCurrent.val1 * 1000) + (tempCurrent.val2 / 1000); 	//mA	CURRENT
+	inaBuffer[indx + 3] = (tempPower.val1 * 1000) + (tempPower.val2 / 1000); 		//mW? 	POWER
 	
 	return 1;
 }
@@ -42,30 +42,30 @@ int readSingleINA(const struct device *ina, int16_t *voltage, int16_t *vshunt, i
 
 int readAllINA(int16_t inaStorage[]){
 	
-	readSingleINA(inaMain, &inaStorage[0], &inaStorage[1], &inaStorage[2], &inaStorage[3]);
-	readSingleINA(inaTPS3_3V, &inaStorage[4], &inaStorage[5], &inaStorage[6], &inaStorage[7]);
-	readSingleINA(inaTPS5V, &inaStorage[8], &inaStorage[9], &inaStorage[10], &inaStorage[11]);
-	readSingleINA(inaSolarA, &inaStorage[12], &inaStorage[13], &inaStorage[14], &inaStorage[15]);
-	readSingleINA(inaSolarB, &inaStorage[16], &inaStorage[17], &inaStorage[18], &inaStorage[19]);
-	readSingleINA(ina5VRF, &inaStorage[20], &inaStorage[21], &inaStorage[22], &inaStorage[23]);
-	readSingleINA(ina12V, &inaStorage[24], &inaStorage[25], &inaStorage[26], &inaStorage[27]);
-	readSingleINA(inaMPPCA, &inaStorage[28], &inaStorage[29], &inaStorage[30], &inaStorage[31]);
-	readSingleINA(inaMPPCB, &inaStorage[32], &inaStorage[33], &inaStorage[34], &inaStorage[35]);
+	readSingleINA(inaMain, inaStorage, 0);
+	readSingleINA(inaTPS3_3V, inaStorage, 4);
+	readSingleINA(inaTPS5V, inaStorage, 8);
+	readSingleINA(inaSolarA, inaStorage, 12);
+	readSingleINA(inaSolarB, inaStorage, 16);
+	readSingleINA(ina5VRF, inaStorage, 20);
+	readSingleINA(ina12V, inaStorage, 24);
+	readSingleINA(inaMPPCA, inaStorage, 28);
+	readSingleINA(inaMPPCB, inaStorage, 32);
 
 	return 1;
 }
 
 
 int getSensorData(int16_t inaStorage[], uint32_t rawTempADC){
-	float temperature = getBattTemp(rawTempADC);
+	//float temperature = getBattTemp(rawTempADC); // Commented out since Idk what temp we are reading yet/ if we can read the EPS thermistor
 
 	if(readAllINA(inaStorage)){
-		for (int i = 0; i < 9; i+=4){
+		for (int i = 0; i < 36; i+=4){
 			printk("INA Main: %dmV, %dmV (vshunt), %dmA, %dmW\n", inaStorage[i], inaStorage[i+1], inaStorage[i+2], inaStorage[i+3]);
 		}
 	}else{
 		return 0;
 	}
-	printk("Temperature of the Batt Board: %f\n", (double)temperature);
+	//printk("Temperature of the Batt Board: %f\n", (double)temperature);
 	return 1;
 }
