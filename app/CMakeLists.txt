@@ -12,7 +12,7 @@ zephyr_nanopb_sources(app proto/eps_link.proto)
 target_sources(app PRIVATE
 	src/main.c
 	src/can_link.c
-	src/sensor_util.c
+	src/sensor_task.c
 	src/nka103c1b1.c
 	src/ntcle101.c
 	src/set_rail.c
