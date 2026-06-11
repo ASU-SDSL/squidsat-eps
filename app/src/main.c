@@ -21,6 +21,8 @@
 #define ADC_NODE DT_PATH(zephyr_user)
 static const struct adc_dt_spec adc_channel = ADC_DT_SPEC_GET_BY_IDX(ADC_NODE, 0);
 
+K_THREAD_STACK_DEFINE(sensor_task_stack, 1024);
+struct k_thread sensor_task_thread;
 
 LOG_MODULE_REGISTER(eps, LOG_LEVEL_INF);
 
@@ -171,7 +173,29 @@ int main(void)
         .buffer_size = sizeof(raw_value),
         .resolution = adc_channel.resolution,
     };
+	// END ADC CODE
 
+	// Sensor_task_code
+	void sensor_task_entry(void *p1, void *p2, void *p3){
+    	ARG_UNUSED(p1);
+    	ARG_UNUSED(p2);
+    	ARG_UNUSED(p3);
+    	sensor_task();
+	}
+
+	k_thread_create(&sensor_task_thread, 
+					sensor_task_stack,
+                    K_THREAD_STACK_SIZEOF(sensor_task_stack),
+                    sensor_task_entry, 
+					NULL, 
+					NULL, 
+					NULL,
+                    5, 
+					0, 
+					K_NO_WAIT);
+	// END SENSOR TASK CODE
+
+	
 	while (1) {
 		size_t encoded_len = 0U;
 		struct tx_action action = tx_plan[plan_idx];

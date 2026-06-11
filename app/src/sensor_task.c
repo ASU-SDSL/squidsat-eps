@@ -72,9 +72,20 @@ int getSensorData(int16_t inaStorage[], uint32_t rawTempADC){
 
 
 void sensor_task(){
-    int16_t INAStorage[36];
+    // int16_t INAStorage[36];
+	int16_t singleINABuffer[4];
     
-    while(1){
-        readAllINA(INAStorage);
+    while(1){ // TODO: Ask Electrical (prob Alex J) or Tyler F about what the INAs should be watching for
+        //readAllINA(INAStorage); // All INA Info is loaded into the buffer
+		
+		//This is just a simple test to check only the voltage of a single INA (U9)
+		readSingleINA(inaTPS3_3V, singleINABuffer, 0);	// test
+		if(singleINABuffer[0] < 2970){	// 2970mV = 2.97V -> Unsafe electronic operation
+			printk("Satellite not recieving 3.3V...");
+		}else{
+			printk("3.3V rail Nominal at %fV", (double)(singleINABuffer[0])/1000.0); 	// Converting to Volts for readibility
+		}
+
+		k_msleep(500);
     }
 }
