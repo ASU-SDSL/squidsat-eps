@@ -57,7 +57,7 @@ int readAllINA(int16_t inaStorage[]){
 
 
 int getSensorData(int16_t inaStorage[], uint32_t rawTempADC){
-	//float temperature = getBattTemp(rawTempADC); // Commented out since Idk what temp we are reading yet/ if we can read the EPS thermistor
+	float temperature = getBattTemp(rawTempADC); // Commented out since Idk what temp we are reading yet/ if we can read the EPS thermistor
 
 	if(readAllINA(inaStorage)){
 		for (int i = 0; i < 36; i+=4){
@@ -66,24 +66,49 @@ int getSensorData(int16_t inaStorage[], uint32_t rawTempADC){
 	}else{
 		return 0;
 	}
-	//printk("Temperature of the Batt Board: %f\n", (double)temperature);
+	printk("Temperature of the Batt Board: %f\n", (double)temperature);
 	return 1;
 }
 
 
 void sensor_task(){
-    // int16_t INAStorage[36];
-	int16_t singleINABuffer[4];
+    int16_t INAStorage[36];
+	//int16_t singleINABuffer[4];
     
     while(1){ // TODO: Ask Electrical (prob Alex J) or Tyler F about what the INAs should be watching for
-        //readAllINA(INAStorage); // All INA Info is loaded into the buffer
+        readAllINA(INAStorage); // All INA Info is loaded into the buffer
 		
 		//This is just a simple test to check only the voltage of a single INA (U9)
-		readSingleINA(inaTPS3_3V, singleINABuffer, 0);	// test
-		if(singleINABuffer[0] < 2970){	// 2970mV = 2.97V -> Unsafe electronic operation
-			printk("Satellite not recieving 3.3V...");
+		// readSingleINA(inaTPS3_3V, singleINABuffer, 0);	// test
+		// if(singleINABuffer[0] < 3140){	// 3140mV = 3.14V -> Unsafe electronic operation
+		// 	printk("Satellite not recieving 3.3V...");
+		// }else{
+		// 	printk("3.3V rail Nominal at %fV", (double)(singleINABuffer[0])/1000.0); 	// Converting to Volts for readibility
+		// }
+
+		
+		if(INAStorage[4] < 3140 || INAStorage[4] > 3460){
+			printk("Satellite out of 3.3V range...");
 		}else{
-			printk("3.3V rail Nominal at %fV", (double)(singleINABuffer[0])/1000.0); 	// Converting to Volts for readibility
+			printk("3.3V Rail Nominal at %fV", (double)(INAStorage[4])/1000.0); 	// Converting to Volts for readibility
+		}
+
+		if(INAStorage[8] < 4750 || INAStorage[8] > 5250){
+			printk("Satellite out of 5V range...");
+		}else{
+			printk("5V Rail Nominal at %fV", (double)(INAStorage[8])/1000.0); 	// Converting to Volts for readibility
+		}
+
+		if(INAStorage[20] < 4750 || INAStorage[20] > 5250){
+			printk("RF Rail out of 5V range...");
+		}else{
+			printk("5V Rail Nominal at %fV", (double)(INAStorage[20])/1000.0); 	// Converting to Volts for readibility
+		}
+
+		if(INAStorage[24] < 11400 || INAStorage[24] > 12600){
+			printk("Lumino 12V Rail out of range...");
+		}else{
+			printk("Lumo 12V Rail Nominal at %fV", (double)(INAStorage[24])/1000.0); 	// Converting to Volts for readibility
 		}
 
 		k_msleep(500);
