@@ -12,11 +12,13 @@
 
 #include <pb_decode.h>
 #include <pb_encode.h>
+#include "state.h"
 #include "can_link.h"
 #include "proto/eps_link.pb.h"
 #include "sensor_task.h"
 #include "nka103c1b1.h"
 #include "ntcle101.h" 
+
 
 #define ADC_NODE DT_PATH(zephyr_user)
 static const struct adc_dt_spec adc_channel = ADC_DT_SPEC_GET_BY_IDX(ADC_NODE, 0);
@@ -31,7 +33,7 @@ typedef enum {
     RESTART
 }State;
 
-State currentState = BOOT;
+currentState = BOOT;
 
 K_THREAD_STACK_DEFINE(sensor_task_stack, 1024);
 struct k_thread sensor_task_thread;
