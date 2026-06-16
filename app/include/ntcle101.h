@@ -1,3 +1,9 @@
+/**
+ * @file ntcle101.h
+ * @author Aidan Doyle (Doyle-Squared)
+ * @brief Code to get the temperature of the thermistor located on the Battery Board and store the temperature in a float
+ */
+
 #ifndef NTCLE101_H
 #define NTCLE101_H
 

@@ -1,5 +1,6 @@
 #include "sensor_task.h"
 #include <stdint.h>
+#include <string.h>
 
 //New intatiation of a test INA struct based off the Zephyr INA219 API. Ignore the error squiggles
 const struct device *inaMain = DEVICE_DT_GET(INA_MAIN);
@@ -74,9 +75,12 @@ int getSensorData(int16_t inaStorage[], uint32_t rawTempADC){
 void sensor_task(){
     int16_t INAStorage[36];
 	//int16_t singleINABuffer[4];
-    
+    heartbeat_telemetry_t eps_hb;
+
     while(1){ // TODO: Ask Electrical (prob Alex J) or Tyler F about what the INAs should be watching for
         readAllINA(INAStorage); // All INA Info is loaded into the buffer
+		memcpy(eps_hb.inaInfo, INAStorage, sizeof(INAStorage));
+		eps_hb.battTemp = 0;
 		
 		//This is just a simple test to check only the voltage of a single INA (U9)
 		// readSingleINA(inaTPS3_3V, singleINABuffer, 0);	// test

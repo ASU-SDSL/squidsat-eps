@@ -23,17 +23,8 @@
 #define ADC_NODE DT_PATH(zephyr_user)
 static const struct adc_dt_spec adc_channel = ADC_DT_SPEC_GET_BY_IDX(ADC_NODE, 0);
 
-typedef enum {
-	BOOT,
-    WAKE,
-    VITALS,
-    REGULAR,
-	SAFE,
-    FAULT,
-    RESTART
-}State;
 
-currentState = BOOT;
+State currentState = BOOT;
 
 K_THREAD_STACK_DEFINE(sensor_task_stack, 1024);
 struct k_thread sensor_task_thread;

@@ -1,3 +1,10 @@
+/**
+ * @file set_rail.h
+ * @author Aidan Doyle (Doyle-Squared)
+ * @brief Skeleton code that models how we might turn off power to certain payloads in the future
+ * @version 0.2
+ */
+
 #ifndef SET_RAIL_H
 #define SET_RAIL_H
 
@@ -10,7 +17,7 @@ typedef enum {
     DANT,
     NEXTAGE,
     NDANT,
-    NONE
+    NO_PAYLOAD
 }Payload;
 
 

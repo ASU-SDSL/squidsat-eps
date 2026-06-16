@@ -62,7 +62,7 @@ int setRail(Payload payload, Command command){
             }
             break;
         default:
-            return 0;
+            break;
         }
         return 1;
     

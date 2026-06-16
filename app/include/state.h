@@ -1,3 +1,9 @@
+/**
+ * @file state.h
+ * @author Aidan Doyle (Doyle-Squared)
+ * @brief Struct for the states of the state machine
+ */
+
 #ifndef STATE_H
 #define STATE_H
 
@@ -10,7 +16,5 @@ typedef enum {
     FAULT,
     RESTART
 }State;
-
-State currentState;
 
 #endif

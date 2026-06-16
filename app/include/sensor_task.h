@@ -1,3 +1,12 @@
+/**
+ * @file sensor_task.h
+ * @author Aidan Doyle (Doyle-Squared)
+ * @brief Code that is supposed to read the INA and tempurature sensors and print them out, as well as storing all the
+ * INA information into a large uint16_t array
+ * @version 1.3
+ * 
+ */
+
 #ifndef SENSOR_TASK_H
 #define SENSOR_TASK_H
 
@@ -17,6 +26,11 @@
 #define INA_12V DT_NODELABEL(ina219_6)
 #define INA_MPPCA DT_NODELABEL(ina219_7)
 #define INA_MPPCB DT_NODELABEL(ina219_8)
+
+typedef struct {
+    int16_t battTemp;
+    int16_t inaInfo[36];
+} heartbeat_telemetry_t;
 
 /**
  * @brief:	The goal of this function is to change the power mode of the EPS board. The buit in INA 
