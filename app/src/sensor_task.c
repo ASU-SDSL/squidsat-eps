@@ -86,7 +86,8 @@ void sensor_task(){
 		// 	printk("3.3V rail Nominal at %fV", (double)(singleINABuffer[0])/1000.0); 	// Converting to Volts for readibility
 		// }
 
-		
+		// If testing EPS soon after June 10th, 2026, comment out all if statements but this first one. 
+		// We dont have a flat sat yet :/
 		if(INAStorage[4] < 3140 || INAStorage[4] > 3460){
 			printk("Satellite out of 3.3V range...");
 		}else{

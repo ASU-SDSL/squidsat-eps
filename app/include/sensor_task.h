@@ -18,7 +18,6 @@
 #define INA_MPPCA DT_NODELABEL(ina219_7)
 #define INA_MPPCB DT_NODELABEL(ina219_8)
 
-
 /**
  * @brief:	The goal of this function is to change the power mode of the EPS board. The buit in INA 
  * 			file may be enough, but I dont know for now. BAREONES CODE until flatsat/mcu provided for.

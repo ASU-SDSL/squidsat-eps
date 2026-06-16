@@ -15,50 +15,55 @@ static const struct gpio_dt_spec dantRail = GPIO_DT_SPEC_GET(DANT_NODE, gpios);
 static const struct gpio_dt_spec nextageRail = GPIO_DT_SPEC_GET(NEXTAGE_NODE, gpios);
 static const struct gpio_dt_spec ndantRail = GPIO_DT_SPEC_GET(NDANT_NODE, gpios);
 
-int setRail(char * payload, char* command){
-    if(strcmp(payload, "payload") == 0){
-        if (strcmp(command, "off") == 0) {
-            gpio_pin_set_dt(&payloadRail, 0); 
-        }
-        if (strcmp(command, "on") == 0) {
-            gpio_pin_set_dt(&payloadRail, 1); 
-        }
-    }else if(strcmp(payload, "lumo") == 0){
-        if (strcmp(command, "off") == 0) {
-            gpio_pin_set_dt(&lumoRail, 0); 
-        }
-        if (strcmp(command, "on") == 0) {
-            gpio_pin_set_dt(&lumoRail, 1); 
-        }
-    }else if(strcmp(payload, "peec") == 0){
-        if (strcmp(command, "off") == 0) {
-            gpio_pin_set_dt(&peecRail, 0); 
-        }
-        if (strcmp(command, "on") == 0) {
-            gpio_pin_set_dt(&peecRail, 1); 
-        }
-    }else if(strcmp(payload, "dant") == 0){
-        if (strcmp(command, "off") == 0) {
-            gpio_pin_set_dt(&dantRail, 0); 
-        }
-        if (strcmp(command, "on") == 0) {
-            gpio_pin_set_dt(&dantRail, 1); 
-        }
-    }else if(strcmp(payload, "nextage") == 0){
-        if (strcmp(command, "off") == 0) {
-            gpio_pin_set_dt(&nextageRail, 0); 
-        }
-        if (strcmp(command, "on") == 0) {
-            gpio_pin_set_dt(&nextageRail, 1); 
-        }
-    }else if(strcmp(payload, "ndant") == 0){
-        if (strcmp(command, "off") == 0) {
-            gpio_pin_set_dt(&ndantRail, 0); 
-        }
-        if (strcmp(command, "on") == 0) {
-            gpio_pin_set_dt(&ndantRail, 1); 
-        }
-    }
 
-    return 1;
+
+int setRail(Payload payload, Command command){
+    switch(payload){
+        case PAYLOAD:
+            if(command == ON){
+                gpio_pin_set_dt(&payloadRail, 1); 
+            }else if(command == OFF){
+                gpio_pin_set_dt(&payloadRail, 0);
+            }
+            break;
+        case LUMONOSITY:
+            if(command == ON){
+                gpio_pin_set_dt(&lumoRail, 1); 
+            }else if(command == OFF){
+                gpio_pin_set_dt(&lumoRail, 0);
+            }
+            break;
+        case PEEC:
+            if(command == ON){
+                gpio_pin_set_dt(&peecRail, 1); 
+            }else if(command == OFF){
+                gpio_pin_set_dt(&peecRail, 0);
+            }
+            break;
+        case DANT:
+            if(command == ON){
+                gpio_pin_set_dt(&dantRail, 1); 
+            }else if(command == OFF){
+                gpio_pin_set_dt(&dantRail, 0);
+            }
+            break;
+        case NEXTAGE:
+            if(command == ON){
+                gpio_pin_set_dt(&nextageRail, 1); 
+            }else if(command == OFF){
+                gpio_pin_set_dt(&nextageRail, 0);
+            }
+            break;
+        case NDANT:
+            if(command == ON){
+                gpio_pin_set_dt(&ndantRail, 1); 
+            }else if(command == OFF){
+                gpio_pin_set_dt(&ndantRail, 0);
+            }
+            break;
+        default:
+            return 0;
+        }
+        return 1;
+    
 }

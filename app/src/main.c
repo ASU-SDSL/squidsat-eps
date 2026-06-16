@@ -21,6 +21,18 @@
 #define ADC_NODE DT_PATH(zephyr_user)
 static const struct adc_dt_spec adc_channel = ADC_DT_SPEC_GET_BY_IDX(ADC_NODE, 0);
 
+typedef enum {
+	BOOT,
+    WAKE,
+    VITALS,
+    REGULAR,
+	SAFE,
+    FAULT,
+    RESTART
+}State;
+
+State currentState = BOOT;
+
 K_THREAD_STACK_DEFINE(sensor_task_stack, 1024);
 struct k_thread sensor_task_thread;
 
@@ -244,5 +256,22 @@ int main(void)
 		// printk("Batt temperature is: %f", temp);
 
 		k_msleep(CONFIG_CAN_LINK_TX_PERIOD_MS);
+
+		switch(currentState){
+			case BOOT:
+				break;
+			case WAKE:
+				break;
+			case VITALS:
+				break;
+			case REGULAR:
+				break;
+			case SAFE:
+				break;
+			case FAULT:
+				break;
+			case RESTART:
+				break;
+		}
 	}
 }
