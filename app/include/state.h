@@ -11,6 +11,7 @@ typedef enum {
 	BOOT,
     WAKE,
     VITALS,
+    DEPLOYING,
     REGULAR,
 	SAFE,
     FAULT,

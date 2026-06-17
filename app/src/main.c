@@ -140,37 +140,13 @@ int main(void)
 	size_t plan_len;
 	size_t plan_idx = 0U;
 	int ret;
-
 	
 	ret = can_link_init(on_can_message, NULL);
-	if (ret != 0) {
-		LOG_ERR("CAN init failed: %d", ret);
-		return 0;
-	}
-
 	plan_len = build_tx_plan((uint8_t)can_link_node_id(), tx_plan, ARRAY_SIZE(tx_plan));
-	if (plan_len == 0U) {
-		LOG_ERR("Failed to build TX plan");
-		return 0;
-	}
 
-	LOG_INF("TX plan loaded for node=%u entries=%u", (unsigned int)can_link_node_id(),
-		(unsigned int)plan_len);
-
-	//ADC Code for the EPS Thermistor
+	// ADC Code for the EPS Thermistor
 	int fault;
     uint32_t raw_value = 0;
-
-    if (!adc_is_ready_dt(&adc_channel)) {
-        //LOG_ERR("ADC controller not ready\n");
-        return 0;
-    }
-
-    fault = adc_channel_setup_dt(&adc_channel);
-    if (fault < 0) {
-        //LOG_ERR("Could not setup channel (%d)\n", fault);
-        return 0;
-    }
 
     struct adc_sequence sequence = {
         .channels = BIT(adc_channel.channel_id),
@@ -200,71 +176,127 @@ int main(void)
 					K_NO_WAIT);
 	// END SENSOR TASK CODE
 
-	
+	// TODO: Remove "return 0" and add LOG_INF for transitioning from BOOT to FAULT in all init conditionals, and change currentState to FAULT
 	while (1) {
-		size_t encoded_len = 0U;
-		struct tx_action action = tx_plan[plan_idx];
-		bool encoded_ok;
-
-		if (action.broadcast) {
-			encoded_ok = encode_broadcast_message(seq, tx_buffer, &encoded_len);
-		} else {
-			encoded_ok = encode_unicast_message(seq, tx_buffer, &encoded_len);
-		}
-
-		if (!encoded_ok) {
-			k_msleep(100);
-			continue;
-		}
-
-		
-		if (action.broadcast) {
-			ret = can_link_send_broadcast(tx_buffer, encoded_len);
-			if (ret != 0) {
-				LOG_ERR("TX broadcast failed (seq=%" PRIu32 "): %d", seq, ret);
-			} else {
-				LOG_INF("TX broadcast seq=%" PRIu32 " bytes=%u", seq, (unsigned int)encoded_len);
-			}
-		} else {
-			ret = can_link_send_to(action.target_node, tx_buffer, encoded_len);
-			if (ret != 0) {
-				LOG_ERR("TX unicast failed (seq=%" PRIu32 ", target=%u): %d", seq,
-					action.target_node, ret);
-			} else {
-				LOG_INF("TX unicast seq=%" PRIu32 " target=%u bytes=%u", seq,
-					action.target_node, (unsigned int)encoded_len);
-			}
-		}
-		
-		seq++;
-		plan_idx = (plan_idx + 1U) % plan_len;
-
-		fault = adc_read_dt(&adc_channel, &sequence);
-    	if (fault < 0) {
-        	//LOG_ERR("Could not read (%d)\n", fault);
-        	return 0;
-    	} 
-		
-		// float temp = getBattTemp(raw_value);
-		// printk("Batt temperature is: %f", temp);
-
-		k_msleep(CONFIG_CAN_LINK_TX_PERIOD_MS);
-
 		switch(currentState){
 			case BOOT:
+				LOG_INF("State: BOOT");
+
+				// WAYNES CAN CODE - INIT (I think)
+				if (ret != 0) {
+					LOG_ERR("CAN init failed: %d", ret);
+					return 0;
+				}
+
+				if (plan_len == 0U) {
+					LOG_ERR("Failed to build TX plan");
+					return 0;
+				}
+
+				LOG_INF("TX plan loaded for node=%u entries=%u", (unsigned int)can_link_node_id(),
+				(unsigned int)plan_len);
+				// END CAN INIT
+
+				// ADC INIT
+				if (!adc_is_ready_dt(&adc_channel)) {
+        			LOG_ERR("ADC controller not ready\n");
+        			return 0;
+    			}
+
+				fault = adc_channel_setup_dt(&adc_channel);
+				if (fault < 0) {
+					LOG_ERR("Could not setup adc channel (%d)\n", fault);
+					return 0;
+				}
+				// END ADC INIT
+				// TODO: Perhaps test for a single, or make a new temporary ina instance to initialize here instead of every ina read
+
+				currentState = WAKE;
+				LOG_INF("State transition from BOOT to WAKE due to: Nominal Initialization!");
 				break;
 			case WAKE:
+				// TODO: Send ack packet to OBC and wait for command back
+				LOG_INF("Sending acknowledge to OBC");
+				LOG_INF("State transition from WAKE to VITALS due to: OBC Next State Command");
+				
+				currentState = VITALS;
 				break;
 			case VITALS:
+			    LOG_INF("State: VITALS");
+				// TODO: Figure out if EPS needs to do anything like call readAllINA()
+            	currentState = REGULAR;
+				break;
+			case DEPLOYING:
+			    LOG_INF("State: DEPLOYING");
+				// TODO: Figure out if EPS needs to do anything here, or just wait
+            	currentState = REGULAR;
 				break;
 			case REGULAR:
+				LOG_INF("State: REGULAR");
+				// Normal Operations Placeholder - No sensor_task call added yet
+				size_t encoded_len = 0U;
+				struct tx_action action = tx_plan[plan_idx];
+				bool encoded_ok;
+
+				if (action.broadcast) {
+					encoded_ok = encode_broadcast_message(seq, tx_buffer, &encoded_len);
+				} else {
+					encoded_ok = encode_unicast_message(seq, tx_buffer, &encoded_len);
+				}
+
+				if (!encoded_ok) {
+					k_msleep(100);
+					continue;
+				}
+
+		
+				if (action.broadcast) {
+					ret = can_link_send_broadcast(tx_buffer, encoded_len);
+					if (ret != 0) {
+						LOG_ERR("TX broadcast failed (seq=%" PRIu32 "): %d", seq, ret);
+					} else {
+						LOG_INF("TX broadcast seq=%" PRIu32 " bytes=%u", seq, (unsigned int)encoded_len);
+					}
+				} else {
+					ret = can_link_send_to(action.target_node, tx_buffer, encoded_len);
+					if (ret != 0) {
+						LOG_ERR("TX unicast failed (seq=%" PRIu32 ", target=%u): %d", seq,
+							action.target_node, ret);
+					} else {
+						LOG_INF("TX unicast seq=%" PRIu32 " target=%u bytes=%u", seq,
+							action.target_node, (unsigned int)encoded_len);
+					}
+				}
+		
+				seq++;
+				plan_idx = (plan_idx + 1U) % plan_len;
+
+				fault = adc_read_dt(&adc_channel, &sequence);
+				if (fault < 0) {
+					//LOG_ERR("Could not read (%d)\n", fault);
+					return 0;
+				} 
+		
+				// float temp = getBattTemp(raw_value);
+				// printk("Batt temperature is: %f", temp);
+
+				k_msleep(CONFIG_CAN_LINK_TX_PERIOD_MS);
 				break;
 			case SAFE:
+				LOG_WRN("State: SAFE");
+            	k_msleep(250);
 				break;
 			case FAULT:
+				LOG_ERR("State: FAULT");
+            	currentState = RESTART;
 				break;
 			case RESTART:
+				LOG_WRN("State: RESTART");
+            	k_msleep(100);
+				// TODO: Figure out how to restart MCU in a safe way
 				break;
 		}
+		
+
 	}
 }

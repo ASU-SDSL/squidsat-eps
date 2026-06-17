@@ -11,9 +11,6 @@
 #define SENSOR_TASK_H
 
 #include <zephyr/drivers/sensor.h>
-#include <zephyr/logging/log.h>
-#include <zephyr/kernel.h>
-#include <zephyr/sys/util.h>
 #include "ntcle101.h" 
 #include <stdint.h>
 

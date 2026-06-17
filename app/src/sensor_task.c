@@ -1,4 +1,7 @@
 #include "sensor_task.h"
+#include <zephyr/logging/log.h>
+#include <zephyr/kernel.h>
+#include <zephyr/sys/util.h>
 #include <stdint.h>
 #include <string.h>
 
@@ -81,7 +84,7 @@ void sensor_task(){
         readAllINA(INAStorage); // All INA Info is loaded into the buffer
 		memcpy(eps_hb.inaInfo, INAStorage, sizeof(INAStorage));
 		eps_hb.battTemp = 0;
-		
+
 		//This is just a simple test to check only the voltage of a single INA (U9)
 		// readSingleINA(inaTPS3_3V, singleINABuffer, 0);	// test
 		// if(singleINABuffer[0] < 3140){	// 3140mV = 3.14V -> Unsafe electronic operation
