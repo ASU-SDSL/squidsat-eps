@@ -16,4 +16,5 @@ target_sources(app PRIVATE
 	src/nka103c1b1.c
 	src/ntcle101.c
 	src/set_rail.c
+	src/ina219.c
 )

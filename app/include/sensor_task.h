@@ -10,19 +10,9 @@
 #ifndef SENSOR_TASK_H
 #define SENSOR_TASK_H
 
-#include <zephyr/drivers/sensor.h>
 #include "ntcle101.h" 
 #include <stdint.h>
 
-#define INA_MAIN DT_NODELABEL(ina219_0)
-#define INA_TPS3_3V DT_NODELABEL(ina219_1)
-#define INA_TPS5V DT_NODELABEL(ina219_2)
-#define INA_SOLARA DT_NODELABEL(ina219_3)
-#define INA_SOLARB DT_NODELABEL(ina219_4)
-#define INA_5VRF DT_NODELABEL(ina219_5)
-#define INA_12V DT_NODELABEL(ina219_6)
-#define INA_MPPCA DT_NODELABEL(ina219_7)
-#define INA_MPPCB DT_NODELABEL(ina219_8)
 
 typedef struct {
     int16_t battTemp;
@@ -38,25 +28,6 @@ typedef struct {
  * @return 	enum PowerState - Returns a basic enum for now with the power levels listed in the Airtable
  */
 // enum PowerState ChangePowerState(struct sensor_value value);
-
-
-/**
- * @brief:	The goal of this function is to read the value of a single INA sensor and store it in four 16 bit variables.
- * @param 	ina Pointer to INA219 instance that we want to get our electrical data from. 
- * @param   inaBuffer Buffer to store the INA Data following the format: Voltage, VShunt, Current, Power
- * @param   indx The starting index of where our data will be stored in the INA buffer. Added to make readAllINA() more simple
- * 
- * @return  Returns a 1 if the method was able to read and store the data
- */
-int readSingleINA(const struct device *ina, int16_t inaBuffer[], uint8_t indx);
-
-/**
- * @brief:	The goal of this function is to read all the EPS INA's and store them in a data buffer to be used for a heartbeat. 
- * @param   inaStorage - Data buffer to store the data of all the INA's
- * 
- * @return  Returns a 1 if the method was able to read and store the data
- */
-int readAllINA(int16_t inaStorage[]);
 
 
 /**
