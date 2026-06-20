@@ -89,7 +89,7 @@
 	status = "okay";
 	clock-frequency = <I2C_BITRATE_STANDARD>;
 
-	fuel_gauge: max17049@36 {
+	fuel_gauge: max17048@36 {
 		compatible = "maxim,max17048";
 		reg = <0x36>;
 		status = "okay";

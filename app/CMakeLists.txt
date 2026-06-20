@@ -17,4 +17,5 @@ target_sources(app PRIVATE
 	src/ntcle101.c
 	src/set_rail.c
 	src/ina219.c
+	src/max17049.c
 )

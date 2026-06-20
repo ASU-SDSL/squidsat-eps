@@ -6,10 +6,11 @@
 #include <zephyr/drivers/sensor.h> 
 #include <zephyr/sys/util.h>
 
-
 #define DT_DRV_COMPAT ti_ina219
-
 #define GET_SENSOR_DEVICE(inst) DEVICE_DT_INST_GET(inst),
+
+LOG_MODULE_REGISTER(ina219, LOG_LEVEL_INF);
+
 
 static const struct device *const inaNodes[] = {
     DT_INST_FOREACH_STATUS_OKAY(GET_SENSOR_DEVICE)
@@ -19,7 +20,7 @@ static const struct device *const inaNodes[] = {
 int readSingleINA(int nodeIndex, ina219_data_t inaInstance){
 	int init = sensor_sample_fetch(inaNodes[nodeIndex]);
 	if (init) {
-		printf("Could not fetch sensor data.\n");
+		LOG_INF("Could not fetch sensor data.\n");
 		return 0;
 	}
 
