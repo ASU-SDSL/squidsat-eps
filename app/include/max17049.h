@@ -23,8 +23,24 @@ typedef struct {
     uint16_t voltageMv;
 }battData;
 
-uint8_t battGetSOC(uint16_t battSOCBuffer);
+/**
+ * @brief This function gets the State of Charge (SOC) aka the battery percentage, as well as the voltage.
+ * 
+ * @param battSOCBuffer A 16-bit unsigned integer pointer to store the battery's SOC value
+ * @param battVoltageBuffer A 16-bit signed integer pointer to store the battery's Voltage
+ * @return uint8_t Returns a 1 for success, 0 for failure
+ */
+uint8_t battGetSOC(uint16_t *battSOCBuffer, int16_t *battVoltageBuffer);
 
+/**
+ * @brief This function takes the temperature from the ntc thermistor on the battery board and sends the
+ * value to the MAX17049's R_COMP register for the IC to recalibrate its SOC calculations based off ambient 
+ * temperature. Refer to page 8 of Maxim's MAX17049 data sheet
+ * 
+ * @param max17049 The Zephyr device-tree node for the MAX17049
+ * @param temp Ntc thermistor's temperature from the battery board
+ * @return uint8_t Returns a 1 for success, 0 for failure
+ */
 uint8_t battCompensateForTemp(const struct device *max17049, float temp);
 
 #endif

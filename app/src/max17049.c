@@ -4,8 +4,8 @@ LOG_MODULE_REGISTER(max17049, LOG_LEVEL_INF);
 
 const struct device *max17049 = DEVICE_DT_GET(MAX17049);
 
-// TODO: Write a fucntion after this one for temperature compensation, using the values gathered from the ntc thermistor
-uint8_t battGetSOC(uint16_t battSOCBuffer){
+
+uint8_t battGetSOC(uint16_t *battSOCBuffer, int16_t *battVoltageBuffer){
     int init;
     battData data;
 
@@ -29,6 +29,8 @@ uint8_t battGetSOC(uint16_t battSOCBuffer){
     }else{
         data.soc = tempData[0].relative_state_of_charge;
         data.voltageMv = (uint16_t)((tempData[1].voltage * 2) / 1000);
+        *battSOCBuffer = data.soc;
+        *battVoltageBuffer = data.voltageMv;
         LOG_INF("The battery is at %d%%, with a voltage of %dmv", data.soc, data.voltageMv);
         return 1;
     }
@@ -36,6 +38,7 @@ uint8_t battGetSOC(uint16_t battSOCBuffer){
     return 0;
 }
 
+// TODO: Maybe include the ntc header file and call the getBattTemp function instead of passing in the temperature as a param. Will look into later
 uint8_t battCompensateForTemp(const struct device *max17049, float temperature){
     fuel_gauge_prop_t property = FUEL_GAUGE_TEMPERATURE;
 
