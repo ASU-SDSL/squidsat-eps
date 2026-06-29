@@ -19,14 +19,14 @@
 #include "nka103c1b1.h"
 #include "ntcle101.h" 
 
-
+// Setting up the Analogue to Digital converter with Zephyr and the STM32
 #define ADC_NODE DT_PATH(zephyr_user)
 static const struct adc_dt_spec adc_channel = ADC_DT_SPEC_GET_BY_IDX(ADC_NODE, 0);
 
 
 State currentState = BOOT;
 
-K_THREAD_STACK_DEFINE(sensor_task_stack, 1024);
+K_THREAD_STACK_DEFINE(sensor_task_stack, 1024);		// Creating the sensor__task
 struct k_thread sensor_task_thread;
 
 LOG_MODULE_REGISTER(eps, LOG_LEVEL_INF);
@@ -36,7 +36,7 @@ struct tx_action {
 	uint8_t target_node;
 };
 
-
+// CAN code, by Wayne
 static bool encode_unicast_message(uint32_t seq, uint8_t *buffer, size_t *encoded_len)
 {
 	EpsLinkMessage msg = EpsLinkMessage_init_zero;
@@ -129,9 +129,9 @@ static size_t build_tx_plan(uint8_t local_node, struct tx_action *plan, size_t m
 	plan[0] = (struct tx_action){ .broadcast = false, .target_node = (uint8_t)CONFIG_CAN_LINK_PEER_NODE_ADDR };
 	return 1U;
 }
+// END OF CAN CODE
 
-
-//MAIN FUNCTION
+// MAIN FUNCTION
 int main(void)
 {
 	uint8_t tx_buffer[EpsLinkMessage_size];
@@ -178,6 +178,7 @@ int main(void)
 
 	// TODO: Remove "return 0" and add LOG_INF for transitioning from BOOT to FAULT in all init conditionals, and change currentState to FAULT
 	while (1) {
+		// State Machine
 		switch(currentState){
 			case BOOT:
 				LOG_INF("State: BOOT");
@@ -273,12 +274,12 @@ int main(void)
 
 				fault = adc_read_dt(&adc_channel, &sequence);
 				if (fault < 0) {
-					//LOG_ERR("Could not read (%d)\n", fault);
+					LOG_ERR("Could not read adc for battery temperature");
 					return 0;
 				} 
 		
-				// float temp = getBattTemp(raw_value);
-				// printk("Batt temperature is: %f", temp);
+				//float temp = getBattTemp(raw_value);
+				//printk("Batt temperature is: %f", temp);
 
 				k_msleep(CONFIG_CAN_LINK_TX_PERIOD_MS);
 				break;

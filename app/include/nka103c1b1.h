@@ -2,7 +2,7 @@
  * @file nka103c1b1.h
  * @author Aidan Doyle (Doyle-Squared)
  * @brief The code in this file was supposed to get the temperature for the EPS, but as of 6/5/26, I dont
- * think that the thermistor is connected to the MCU
+ * think that the thermistor is connected to the MCU directly
  */
 
 #ifndef NKA103C1B1_H

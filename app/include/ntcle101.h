@@ -18,6 +18,12 @@
 *   R_reference * (V_ADC/VCC - V_ADC)   or   R_reference * ((ADC_max/ADC_reading) - 1)
 */
 
+/**
+ * @brief Get the ambient temperature of the Battery Board in Celcius
+ * 
+ * @param ADC_Value Converted analogue value from the thermistor, used to find the temperature
+ * @return float Returns the temperature of the Battery Board in Celcius
+ */
 float getBattTemp(uint32_t ADC_Value);
 
 #endif

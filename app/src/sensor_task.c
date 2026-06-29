@@ -21,6 +21,8 @@ void sensor_task(){
     while(1){ // TODO: Ask Electrical (prob Alex J) or Tyler F about what the INAs should be watching for
 		eps_hb.battTemp = 0;
 
+		
+
 		k_msleep(500);
     }
 }
