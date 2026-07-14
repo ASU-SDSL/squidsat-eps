@@ -9,6 +9,7 @@
 #include <zephyr/sys/util.h>
 #include <zephyr/drivers/adc.h>
 #include <zephyr/devicetree.h>
+#include <zephyr/printk.h>
 
 #include <pb_decode.h>
 #include <pb_encode.h>
@@ -134,6 +135,7 @@ static size_t build_tx_plan(uint8_t local_node, struct tx_action *plan, size_t m
 // MAIN FUNCTION
 int main(void)
 {
+	printk("Aidan was here");
 	uint8_t tx_buffer[EpsLinkMessage_size];
 	struct tx_action tx_plan[3];
 	uint32_t seq = 0U;
