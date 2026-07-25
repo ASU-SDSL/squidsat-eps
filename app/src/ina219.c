@@ -11,6 +11,17 @@
 
 LOG_MODULE_REGISTER(ina219, LOG_LEVEL_INF);
 
+/*
+	0 - Main INA
+	1 - TPS3V
+	2 - TPS5V
+	3 - Solar A
+	4 - Solar B
+	5 - 5V RF
+	6 - 12V
+	7 - MPPC A
+	8 - MPPC B
+*/
 
 static const struct device *const inaNodes[] = {
     DT_INST_FOREACH_STATUS_OKAY(GET_SENSOR_DEVICE)
