@@ -9,6 +9,8 @@
 
 #include <stdint.h>
 #include <math.h>
+#include "adc.h"
+
 
 /* Beta Model Equation for getting the tempurature
 *   1/T = (1/T_o) + (1/beta) * ln(R_Therm/R_nominal)
@@ -21,9 +23,9 @@
 /**
  * @brief Get the ambient temperature of the Battery Board in Celcius
  * 
- * @param ADC_Value Converted analogue value from the thermistor, used to find the temperature
- * @return float Returns the temperature of the Battery Board in Celcius
+ * @param temperatur Pointer to a data buffer that will hold the temp of the Battery Board in Celcius
+ * @return int Returns 1 if the temperature was calculated, 0 otherwise
  */
-float getBattTemp(uint32_t ADC_Value);
+int getBattTemp(float *temperature);
 
 #endif

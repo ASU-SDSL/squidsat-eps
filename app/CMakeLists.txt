@@ -18,4 +18,5 @@ target_sources(app PRIVATE
 	src/set_rail.c
 	src/ina219.c
 	src/max17049.c
+	src/adc.c
 )

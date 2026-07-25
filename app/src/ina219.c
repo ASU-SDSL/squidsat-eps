@@ -22,29 +22,29 @@ static const struct device *const inaNodes[] = {
 int readSingleINA(int nodeIndex, ina219_data_t *inaInstance){
 	int init = sensor_sample_fetch(inaNodes[nodeIndex]);
 	if (init) {
-		LOG_INF("Could not fetch sensor data.\n");
+		LOG_WRN("Could not fetch sensor data.\n");
 		return 0;
 	}
 
-	struct sensor_value tempVoltage;
-	struct sensor_value tempVshunt;
 	struct sensor_value tempCurrent;
+	struct sensor_value tempVoltage;
 	struct sensor_value tempPower;
-
+	struct sensor_value tempVshunt;
+	
+	sensor_channel_get(inaNodes[nodeIndex], SENSOR_CHAN_CURRENT, &tempCurrent);
 	sensor_channel_get(inaNodes[nodeIndex], SENSOR_CHAN_VOLTAGE, &tempVoltage);
+	sensor_channel_get(inaNodes[nodeIndex], SENSOR_CHAN_POWER, &tempPower);
 	sensor_channel_get(inaNodes[nodeIndex], SENSOR_CHAN_VSHUNT, &tempVshunt);
-	sensor_channel_get(inaNodes[nodeIndex], SENSOR_CHAN_POWER, &tempCurrent);
-	sensor_channel_get(inaNodes[nodeIndex], SENSOR_CHAN_CURRENT, &tempPower);
-
-    inaInstance->voltage = sensor_value_to_double(&tempVoltage);
-    inaInstance->shuntVoltage = sensor_value_to_double(&tempVshunt);
+	
 	inaInstance->current = sensor_value_to_double(&tempCurrent);
+    inaInstance->voltage = sensor_value_to_double(&tempVoltage);
 	inaInstance->power = sensor_value_to_double(&tempPower);
+    inaInstance->shuntVoltage = sensor_value_to_double(&tempVshunt);
 	
 	return 1;
 }
 
-
+// TODO: Put a check around the INA function call
 int readAllINA(ina219_data_t inaSensors[]){
 	for(int i = 0; i < 9; i++){
 		readSingleINA(i, &inaSensors[i]);

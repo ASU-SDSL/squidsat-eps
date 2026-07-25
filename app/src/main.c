@@ -7,9 +7,9 @@
 #include <zephyr/logging/log.h>
 #include <zephyr/kernel.h>
 #include <zephyr/sys/util.h>
-#include <zephyr/drivers/adc.h>
+
 #include <zephyr/devicetree.h>
-#include <zephyr/printk.h>
+#include <zephyr/sys/printk.h>
 
 #include <pb_decode.h>
 #include <pb_encode.h>
@@ -19,10 +19,7 @@
 #include "sensor_task.h"
 #include "nka103c1b1.h"
 #include "ntcle101.h" 
-
-// Setting up the Analogue to Digital converter with Zephyr and the STM32
-#define ADC_NODE DT_PATH(zephyr_user)
-static const struct adc_dt_spec adc_channel = ADC_DT_SPEC_GET_BY_IDX(ADC_NODE, 0);
+#include "ina219.h"
 
 
 State currentState = BOOT;
@@ -135,28 +132,21 @@ static size_t build_tx_plan(uint8_t local_node, struct tx_action *plan, size_t m
 // MAIN FUNCTION
 int main(void)
 {
-	printk("Aidan was here");
+	//printk("Aidan was here");
 	uint8_t tx_buffer[EpsLinkMessage_size];
 	struct tx_action tx_plan[3];
 	uint32_t seq = 0U;
 	size_t plan_len;
 	size_t plan_idx = 0U;
 	int ret;
+
+	
+
+
+	ina219_data_t inaData = {0};
 	
 	ret = can_link_init(on_can_message, NULL);
 	plan_len = build_tx_plan((uint8_t)can_link_node_id(), tx_plan, ARRAY_SIZE(tx_plan));
-
-	// ADC Code for the EPS Thermistor
-	int fault;
-    uint32_t raw_value = 0;
-
-    struct adc_sequence sequence = {
-        .channels = BIT(adc_channel.channel_id),
-        .buffer = &raw_value,
-        .buffer_size = sizeof(raw_value),
-        .resolution = adc_channel.resolution,
-    };
-	// END ADC CODE
 
 	// Sensor_task_code
 	void sensor_task_entry(void *p1, void *p2, void *p3){
@@ -200,18 +190,7 @@ int main(void)
 				(unsigned int)plan_len);
 				// END CAN INIT
 
-				// ADC INIT
-				if (!adc_is_ready_dt(&adc_channel)) {
-        			LOG_ERR("ADC controller not ready\n");
-        			return 0;
-    			}
-
-				fault = adc_channel_setup_dt(&adc_channel);
-				if (fault < 0) {
-					LOG_ERR("Could not setup adc channel (%d)\n", fault);
-					return 0;
-				}
-				// END ADC INIT
+				
 				// TODO: Perhaps test for a single, or make a new temporary ina instance to initialize here instead of every ina read
 
 				currentState = WAKE;
@@ -237,6 +216,9 @@ int main(void)
 			case REGULAR:
 				LOG_INF("State: REGULAR");
 				// Normal Operations Placeholder - No sensor_task call added yet
+				readSingleINA(0, &inaData);
+				printk("INA data is: %fV, %fA, %fW", (double)inaData.voltage, (double)inaData.current, (double)inaData.power);
+				
 				size_t encoded_len = 0U;
 				struct tx_action action = tx_plan[plan_idx];
 				bool encoded_ok;
@@ -274,11 +256,7 @@ int main(void)
 				seq++;
 				plan_idx = (plan_idx + 1U) % plan_len;
 
-				fault = adc_read_dt(&adc_channel, &sequence);
-				if (fault < 0) {
-					LOG_ERR("Could not read adc for battery temperature");
-					return 0;
-				} 
+				
 		
 				//float temp = getBattTemp(raw_value);
 				//printk("Batt temperature is: %f", temp);

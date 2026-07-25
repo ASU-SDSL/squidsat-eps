@@ -5,10 +5,10 @@
 
 typedef struct {
     uint8_t id;
-    float voltage;
-    float shuntVoltage;
     float current;
+    float voltage;
     float power;
+    float shuntVoltage;
 } ina219_data_t;
 
 /**
