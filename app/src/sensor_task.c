@@ -20,12 +20,26 @@ void sensor_task(){
     while(1){ // TODO: Ask Electrical (prob Alex J) or Tyler F about what the INAs should be watching for
 		getSensorData(eps_hb.inaInfo, &eps_hb.battTemp);
 
+		// TODO: use set rail functions per failure
 		for(int i = 0; i < 9; i++){
-			//Checking INA instances current
-			if(eps_hb.inaInfo[i].current <= 20){
-				printk("WARNING --- IS DRAWING TOO MUCH POWER");
+			int fault = 0; // Counts if any of the INA instance's reading are abnormal
+
+			// Checking INA instance's current
+			if(eps_hb.inaInfo[i].current >= 10){
+				LOG_WRN("WARNING --- HAS TOO MUCH CURRENT");
+			}
+
+			// Checking INA instance's voltage
+			if(eps_hb.inaInfo[i].voltage >= 20){
+				LOG_WRN("WARNING --- IS OVER VOLTAGE");
+			}
+
+			if(eps_hb.inaInfo[i].power >= 300){
+				LOG_WRN("WARNING --- IS CONSUMING TOO MUCH POWER");
 			}
 		}
+
+		
 		
 
 		k_msleep(500);
