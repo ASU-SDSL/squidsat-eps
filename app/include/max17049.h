@@ -19,7 +19,7 @@
 #define MAX17049 DT_NODELABEL(fuel_gauge)
 
 typedef struct {
-    uint8_t soc;
+    uint16_t soc;
     uint16_t voltageMv;
 }battData;
 
@@ -41,6 +41,6 @@ uint8_t battGetSOC(uint16_t *battSOCBuffer, int16_t *battVoltageBuffer);
  * @param temp Ntc thermistor's temperature from the battery board
  * @return uint8_t Returns a 1 for success, 0 for failure
  */
-uint8_t battCompensateForTemp(const struct device *max17049, float temp);
+uint8_t battCompensateForTemp(float temp);
 
 #endif

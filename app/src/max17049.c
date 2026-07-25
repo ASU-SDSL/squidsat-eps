@@ -39,7 +39,7 @@ uint8_t battGetSOC(uint16_t *battSOCBuffer, int16_t *battVoltageBuffer){
 }
 
 // TODO: Maybe include the ntc header file and call the getBattTemp function instead of passing in the temperature as a param. Will look into later
-uint8_t battCompensateForTemp(const struct device *max17049, float temperature){
+uint8_t battCompensateForTemp(float temperature){
     fuel_gauge_prop_t property = FUEL_GAUGE_TEMPERATURE;
 
     union fuel_gauge_prop_val value;

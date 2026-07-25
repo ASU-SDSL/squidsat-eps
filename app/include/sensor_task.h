@@ -10,14 +10,22 @@
 #ifndef SENSOR_TASK_H
 #define SENSOR_TASK_H
 
+#include <stdint.h>
+#include <string.h>
+#include <zephyr/logging/log.h>
+#include <zephyr/kernel.h>
+#include <zephyr/sys/util.h>
 #include "ntcle101.h" 
 #include "ina219.h"
-#include <stdint.h>
+#include "max17049.h"
+
 
 
 typedef struct {
     ina219_data_t inaInfo[9];
     float battTemp;
+    uint16_t battSOC;
+    int16_t battVoltage;
 } heartbeat_telemetry_t;
 
 /**
@@ -38,7 +46,7 @@ typedef struct {
  * @param temperature Pointer to temperature storage buffer
  * @return int Returns 1 if no errors
  */
-int getSensorData(ina219_data_t inaStorage[], float *temperature);
+int getSensorData(ina219_data_t inaStorage[], float *temperature, uint16_t *battSOC, uint16_t *battVoltage);
 
 /**
  * @brief Retrieve information from the sensors on the EPS and check for low/high temp, low power, etc.
