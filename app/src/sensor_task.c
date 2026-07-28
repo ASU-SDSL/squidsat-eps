@@ -67,20 +67,32 @@ void sensor_task(){
 
 		// Monitoring battery board temperature
 		if(eps_hb.battTemp >=25){
-			LOG_INF("Batteries have been heated, turning off heater...");
-			battHeaterOff();
+			LOG_INF("Batteries have been heated, turning off heater!");
+
+			if(battHeaterOff()){
+				LOG_INF("Battery Heater turned off");
+			}else{
+				LOG_WRN("Battery Heater failed to turn off...");
+			}
 		}else if(eps_hb.battTemp <= 5){
 			LOG_WRN("Battery Board Temp getting low: %fC. Starting heater", (double)eps_hb.battTemp);
-			battHeaterOn();
+
+			if(battHeaterOn()){
+				LOG_INF("Battery Heater turned on");
+			}else{
+				LOG_WRN("Battery Heater failed to turn on");
+			}
 		}else if (eps_hb.battTemp <= 0){
-			LOG_WRN("BATTERY TEMP IS CRITICALLY LOW");
+			LOG_WRN("BATTERY TEMP IS CRITICALLY LOW...");
+			// TODO: See if we should retry the battery heater gpio toggle. May need to research function to check the signal on the
+			//		 gpio line first
 		}
 
 		// Monitoring battey percentage
 		if(eps_hb.battSOC <= 20){
 			LOG_WRN("Battery is starting to get low (below 20%%)");
 		}else if(eps_hb.battSOC <= 15){
-			LOG_WRN("BATTERY TEMP CRITICALLY LOW, SWITCHING TO LOW POWER");
+			LOG_WRN("BATTERY SOC CRITICALLY LOW, SWITCHING TO LOW POWER...");
 			// TODO: Add low power mode to satellite. Either command to OBC or something else
 		}
 		

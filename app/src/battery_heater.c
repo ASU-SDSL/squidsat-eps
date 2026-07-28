@@ -17,18 +17,18 @@ static const struct gpio_dt_spec batteryHeater = GPIO_DT_SPEC_GET(BATT_HEATER, g
 
 int battHeaterOn(){
     if(!gpio_pin_set_dt(&batteryHeater, 1)){
-        LOG_INF("Battery heater has been turned on");
+        LOG_INF("Battery heater gpio toggled on");
         return 1;
     };
-    LOG_WRN("Battery Heater failed to turn on");
+    LOG_WRN("Battery Heater gpio failed to toggle on");
     return 0;
 }
 
 int battHeaterOff(){
     if(!gpio_pin_set_dt(&batteryHeater, 0)){
-        LOG_INF("Battery heater has been turned off");
+        LOG_INF("Battery heater gpio toggled off");
         return 1;
     };
-    LOG_WRN("Battery Heater failed to turn ff");
+    LOG_WRN("Battery Heater gpio failed to toggle off");
     return 0;
 }
