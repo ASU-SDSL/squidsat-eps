@@ -17,6 +17,7 @@ static const float ADC_MAX = 4095.0;
 
 int getBattTemp(float *temperature){
     if(!adcRead()){
+        LOG_WRN("ADC Could not be read for NTC thermistor...");
         return 0;
     }
 
