@@ -19,4 +19,5 @@ target_sources(app PRIVATE
 	src/ina219.c
 	src/max17049.c
 	src/adc.c
+	src/battery_heater.c
 )
