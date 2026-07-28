@@ -66,9 +66,12 @@ void sensor_task(){
 		}
 
 		// Monitoring battery board temperature
-		if(eps_hb.battTemp <= 5){
+		if(eps_hb.battTemp >=25){
+			LOG_INF("Batteries have been heated, turning off heater...");
+			battHeaterOff();
+		}else if(eps_hb.battTemp <= 5){
 			LOG_WRN("Battery Board Temp getting low: %fC. Starting heater", (double)eps_hb.battTemp);
-			// TODO: Do I need to add something to signal the battery heater to start?
+			battHeaterOn();
 		}else if (eps_hb.battTemp <= 0){
 			LOG_WRN("BATTERY TEMP IS CRITICALLY LOW");
 		}

@@ -18,6 +18,7 @@
 #include "ntcle101.h" 
 #include "ina219.h"
 #include "max17049.h"
+#include "battery_heater.h"
 
 
 
