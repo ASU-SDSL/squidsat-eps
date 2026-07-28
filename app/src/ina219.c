@@ -58,8 +58,12 @@ int readSingleINA(int nodeIndex, ina219_data_t *inaInstance){
 // TODO: Put a check around the INA function call
 int readAllINA(ina219_data_t inaSensors[]){
 	for(int i = 0; i < 9; i++){
-		readSingleINA(i, &inaSensors[i]);
 		inaSensors[i].id = (uint8_t)i;
+		if(readSingleINA(i, &inaSensors[i])){
+			LOG_INF("INA219 ID: %d, has been read", inaSensors[i].id);
+		}else{
+			LOG_WRN("INA219 ID: %d, failed to be read", inaSensors[i].id);
+		}
 	}
 	
 	return 1;
