@@ -3,6 +3,8 @@
 
 LOG_MODULE_REGISTER(sensorTask, LOG_LEVEL_INF);
 
+const int SENSOR_JOB_INTERVAL_MS 1000
+
 int getSensorData(ina219_data_t inaStorage[], float *temperature, uint16_t *battSOC, uint16_t *battVoltage){
 	getBattTemp(temperature); 
 	readAllINA(inaStorage);
