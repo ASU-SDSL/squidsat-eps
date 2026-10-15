@@ -17,6 +17,7 @@
 		rail3 = &rail_3;
 		rail4 = &rail_4;
 		rail5 = &rail_5;
+		rail6 = &rail_6;
 	};
 
 	rails {
@@ -50,6 +51,11 @@
 		rail_5: rail5{
 			gpios = <&gpioc 12 GPIO_ACTIVE_HIGH>;
 			label = "NDANT RAIL";
+		};
+
+		rail_6: rail6{
+			gpios = <&gpiob 14 GPIO_ACTIVE_HIGH>;
+			label = "BATT HEATER";
 		};
 	};
 };

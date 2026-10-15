@@ -5,11 +5,18 @@
 
 typedef struct {
     uint8_t id;
-    float voltage;
-    float shuntVoltage;
     float current;
+    float voltage;
     float power;
+    float shuntVoltage;
 } ina219_data_t;
+
+typedef struct {
+    float voltageMin;
+    float voltageMax;
+    float currentMin;
+    float currentMax;
+} inaRanges;
 
 /**
  * @brief:	The goal of this function is to read the value of a single INA sensor .

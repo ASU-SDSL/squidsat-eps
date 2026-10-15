@@ -10,13 +10,23 @@
 #ifndef SENSOR_TASK_H
 #define SENSOR_TASK_H
 
-#include "ntcle101.h" 
 #include <stdint.h>
+#include <string.h>
+#include <zephyr/logging/log.h>
+#include <zephyr/kernel.h>
+#include <zephyr/sys/util.h>
+#include "ntcle101.h" 
+#include "ina219.h"
+#include "max17049.h"
+#include "battery_heater.h"
+
 
 
 typedef struct {
-    int16_t battTemp;
-    int16_t inaInfo[36];
+    ina219_data_t inaInfo[9];
+    float battTemp;
+    uint16_t battSOC;
+    int16_t battVoltage;
 } heartbeat_telemetry_t;
 
 /**
@@ -33,11 +43,11 @@ typedef struct {
 /**
  * @brief Read information from all the sensors (INAs and thermistors) and print the information in a readable format
  * 
- * @param inaStorage Data buffer to store the data of all the INA's
- * @param rawTempADC ADC value from the Battery Board thermistor, to be used for the getBattTemp function
+ * @param inaStorage Array to store each INA instace struct's data
+ * @param temperature Pointer to temperature storage buffer
  * @return int Returns 1 if no errors
  */
-int getSensorData(int16_t inaStorage[], uint32_t rawTempADC);
+int getSensorData(ina219_data_t inaStorage[], float *temperature, uint16_t *battSOC, uint16_t *battVoltage);
 
 /**
  * @brief Retrieve information from the sensors on the EPS and check for low/high temp, low power, etc.
