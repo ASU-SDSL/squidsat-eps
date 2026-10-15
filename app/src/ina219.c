@@ -11,7 +11,7 @@
 
 LOG_MODULE_REGISTER(ina219, LOG_LEVEL_INF);
 
-/*
+/*	Orded by I2C addresses as of 5/12/26
 	0 - Main INA
 	1 - TPS3V
 	2 - TPS5V
@@ -22,6 +22,19 @@ LOG_MODULE_REGISTER(ina219, LOG_LEVEL_INF);
 	7 - MPPC A
 	8 - MPPC B
 */
+
+// {voltage max, voltage min, current max, current min}
+const inaRanges SAFE_RANGES[9] = {
+	{8.4, 6.0, 12.0, 0.2},			// Main INA
+	{3.6, 3.0, 3.0, 0.3},			// TPS 3.3V
+	{5.5, 4.5, 3.0, 0.0},			// TPS 5V
+	{6.0, 2.6, 2.0, 0.1},			// Solar A  ***PLACEHOLDER VALUES***
+	{6.0, 2.6, 2.0, 0.1},			// Solar B  ***PLACEHOLDER VALUES***
+	{4.9, 5.1, 3.0, 0.0},			// 5F RF
+	{13.0, 11.0, 3.0, 0.0},			// 12V Reg
+	{10.0, 8.0, 0.5, 0.0},			// MMPCA
+	{10.0, 8.0, 0.5, 0.0}			// MPPCB
+};
 
 static const struct device *const inaNodes[] = {
     DT_INST_FOREACH_STATUS_OKAY(GET_SENSOR_DEVICE)
@@ -55,15 +68,16 @@ int readSingleINA(int nodeIndex, ina219_data_t *inaInstance){
 	return 1;
 }
 
-// TODO: Put a check around the INA function call
 int readAllINA(ina219_data_t inaSensors[]){
 	for(int i = 0; i < 9; i++){
-		inaSensors[i].id = (uint8_t)i;
-		if(readSingleINA(i, &inaSensors[i])){
-			LOG_INF("INA219 ID: %d, has been read", inaSensors[i].id);
-		}else{
-			LOG_WRN("INA219 ID: %d, failed to be read", inaSensors[i].id);
-		}
+		readSingleINA(i, &inaSensors[i]);	// Read the sensor information
+		inaSensors[i].id = (uint8_t)i; 	
+			// TODO: Redundant, we dont need to assign ID's each time
+		if ((inaSensors[i].voltage > SAFE_RANGES->voltageMax || inaSensors[i].voltage < SAFE_RANGES->voltageMin) ||
+			(inaSensors[i].current > SAFE_RANGES->currentMax || inaSensors[i].current < SAFE_RANGES->currentMin)){
+				LOG_ERR("INA %d Voltage or Current is beyond a safe range", i);
+				// TODO: Shut off all payloads via load switches and power and send info to OBC/DANT
+			}
 	}
 	
 	return 1;

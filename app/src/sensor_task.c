@@ -3,13 +3,14 @@
 
 LOG_MODULE_REGISTER(sensorTask, LOG_LEVEL_INF);
 
-const int SENSOR_JOB_INTERVAL_MS 1000
+const int SENSOR_JOB_INTERVAL_MS = 1000;
 
+// TODO: add function call checks here
 int getSensorData(ina219_data_t inaStorage[], float *temperature, uint16_t *battSOC, uint16_t *battVoltage){
-	getBattTemp(temperature); 
-	readAllINA(inaStorage);
+	getBattTemp(temperature); 				// Read the temp
+	readAllINA(inaStorage);					// Read all the INA sensor's information
 
-	battCompensateForTemp(*temperature);
+	battCompensateForTemp(*temperature);	// Calibrate MAX17049 based on the temperature
 	battGetSOC(battSOC, battVoltage);		// Remember the voltage is in milivolts (or microvolts, idk if that's a thing);
 	return 1;
 }
@@ -20,52 +21,6 @@ void sensor_task(){
 
     while(1){ // TODO: Ask Electrical (prob Alex J) or Tyler F about what the INAs should be watching for
 		getSensorData(eps_hb.inaInfo, &eps_hb.battTemp, &eps_hb.battSOC, &eps_hb.battVoltage);
-
-		// Monitoring INA219 readings
-		// TODO: use set rail functions per failure
-		for(int i = 0; i < 9; i++){
-			int fault = 0; // Counts if any of the INA instance's reading are abnormal
-
-			// Checking INA instance's current
-			if(eps_hb.inaInfo[i].current >= 10){
-				LOG_WRN("WARNING --- HAS TOO MUCH CURRENT");
-				fault++;
-			}
-
-			// Checking INA instance's voltage
-			if(eps_hb.inaInfo[i].voltage >= 20){
-				LOG_WRN("WARNING --- IS OVER VOLTAGE");
-				fault++;
-			}
-
-			if(eps_hb.inaInfo[i].power >= 300){
-				LOG_WRN("WARNING --- IS CONSUMING TOO MUCH POWER");
-				fault++;
-			}
-
-			if (fault >= 1){
-				switch(i) {
-					case 0:
-						break;
-					case 1:
-						break;
-					case 2:
-						break;
-					case 3:
-						break;
-					case 4:
-						break;
-					case 5:
-						break;
-					case 6:
-						break;
-					case 7:
-						break;
-					case 8:
-						break;
-				}
-			}
-		}
 
 		// Monitoring battery board temperature
 		if(eps_hb.battTemp >=25){
@@ -99,6 +54,6 @@ void sensor_task(){
 		}
 		
 
-		k_msleep(500);
+		k_msleep(1000);
     }
 }

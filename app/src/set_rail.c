@@ -16,7 +16,7 @@ static const struct gpio_dt_spec nextageRail = GPIO_DT_SPEC_GET(NEXTAGE_NODE, gp
 static const struct gpio_dt_spec ndantRail = GPIO_DT_SPEC_GET(NDANT_NODE, gpios);
 
 
-
+// TODO: function call checks
 int setRail(Payload payload, Command command){
     switch(payload){
         case PAYLOAD:
@@ -65,5 +65,4 @@ int setRail(Payload payload, Command command){
             break;
         }
         return 1;
-    
 }

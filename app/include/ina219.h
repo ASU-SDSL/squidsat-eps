@@ -11,6 +11,13 @@ typedef struct {
     float shuntVoltage;
 } ina219_data_t;
 
+typedef struct {
+    float voltageMin;
+    float voltageMax;
+    float currentMin;
+    float currentMax;
+} inaRanges;
+
 /**
  * @brief:	The goal of this function is to read the value of a single INA sensor .
  * @param 	nodeIndex Index to the specific INA Zephyr device-tree node you want to read

@@ -8,7 +8,7 @@
 *
 *   R_reference * (V_ADC/VCC - V_ADC)   or   R_reference * ((ADC_max/ADC_reading) - 1)
 */
-
+LOG_MODULE_REGISTER(ntcle, LOG_LEVEL_INF);
 
 static const float R_REF = 1000.0; //1k Ohms
 static const float BETA_COEF = 3534.0; //Kelvin
@@ -25,7 +25,7 @@ int getBattTemp(float *temperature){
     float R_therm = R_REF * ((ADC_MAX/raw_ADC) - 1);
 
     float temp_k = R_therm/R_REF;
-    temp_k = log(temp_k);
+    temp_k = log(temp_k); // TODO: Add function call check for log(temp_k)
     temp_k /= BETA_COEF;
     temp_k += (float)1.0 / (TEMP_NOM + (float)273.15);
     temp_k = (float)1.0 / temp_k;

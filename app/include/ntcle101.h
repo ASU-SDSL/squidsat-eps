@@ -9,6 +9,9 @@
 
 #include <stdint.h>
 #include <math.h>
+#include <zephyr/logging/log.h>
+#include <zephyr/kernel.h>
+#include <zephyr/sys/util.h>
 #include "adc.h"
 
 
