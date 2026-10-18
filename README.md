@@ -1,4 +1,4 @@
-# SquidSat EPS (We Need to Update the Readme, this info is old)
+# SquidSat EPS (WIP - Code and README revamp coming soon)
 
 Minimal Zephyr boilerplate for STM32 (`nucleo_f103rb`) with a single blinky app.
 
