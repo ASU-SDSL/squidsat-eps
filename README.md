@@ -1,6 +1,6 @@
 # SquidSat EPS
 
-##The goal of the Electronics Power System board (EPS) for SquidSat, is to act as the satellite's heart and nervous system.
+## The goal of the Electronics Power System board (EPS) for SquidSat, is to act as the satellite's heart and nervous system.
 
 - Throughout the mission, the EPS will be in charge of monitoring power busses going to payloads and other operational hardware through nine Texas Instruments INA219 sensors. These sensors help monitor current, voltage, and the power draw for any designated bus lines. 
 - Also aboard the EPS is a NTC thermistor whose readings shall be used to read ambient temperature, determine if the battery heater needs to be toggled on/off, and help calibrate the MAX17049 sensor.
@@ -11,10 +11,13 @@ Throughout the course of operation, the EPS will take commands from the On Board
 
 Future plans, if time permits, include experimenting with a simple eclipse prediction algorithm, and other bonus features!
 
+## Important Notes/Files
+```text
 - One build system: `west` + CMake/Ninja (Zephyr standard)
 - One app source file: `app/src/main.c`
 - One board target: `nucleo_f103rb`
 - One manifest with only required STM32 modules (`cmsis_6`, `hal_stm32`)
+```
 
 ## 1. System-level dependencies (machine setup)
 
