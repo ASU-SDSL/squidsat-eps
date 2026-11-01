@@ -1,13 +1,14 @@
 # SquidSat EPS
 
-The goal of the Electronics Power System board (EPS) for SquidSat, is to act as the satellite's heart and nervous system.
+##The goal of the Electronics Power System board (EPS) for SquidSat, is to act as the satellite's heart and nervous system.
 
-Throughout the mission, the EPS will be in charge of monitoring power busses going to payloads and other operational hardware through nine Texas Instruments INA219 sensors. These sensors help monitor current, voltage, and the power draw for any designated bus lines. 
-Also aboard the EPS is a NTC thermistor whose readings shall be used to read ambient temperature, determine if the battery heater needs to be toggled on/off, and help calibrate the MAX17049 sensor.
-The MAX17049 sensor is an integrated circuit that calculates a battery's State of Charge (aka percentage) as well as the voltage of the batteries.
-To accomplish this task, the EPS has been equipped with CAN Bus controllers to communicate with the other boards and I2C to read sensor telemetry.
+- Throughout the mission, the EPS will be in charge of monitoring power busses going to payloads and other operational hardware through nine Texas Instruments INA219 sensors. These sensors help monitor current, voltage, and the power draw for any designated bus lines. 
+- Also aboard the EPS is a NTC thermistor whose readings shall be used to read ambient temperature, determine if the battery heater needs to be toggled on/off, and help calibrate the MAX17049 sensor.
+- The MAX17049 sensor is an integrated circuit that calculates a battery's State of Charge (aka percentage) as well as the voltage of the batteries.
+- To accomplish this task, the EPS has been equipped with CAN Bus controllers to communicate with the other boards and I2C to read sensor telemetry.
 
 Throughout the course of operation, the EPS will take commands from the On Board Computer (OBC), send and receive acknowledgement packets, report sensor/bus faults, toggle busses/heaters, and send telemetry back to the OBC for transmission to Earth.
+
 Future plans, if time permits, include experimenting with a simple eclipse prediction algorithm, and other bonus features!
 
 - One build system: `west` + CMake/Ninja (Zephyr standard)
