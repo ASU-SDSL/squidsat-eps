@@ -1,8 +1,14 @@
-# SquidSat EPS (WIP - Code and README revamp coming soon)
+# SquidSat EPS
 
-Minimal Zephyr boilerplate for STM32 (`nucleo_f103rb`) with a single blinky app.
+The goal of the Electronics Power System board (EPS) for SquidSat, is to act as the satellite's heart and nervous system.
 
-## Why this is minimal
+Throughout the mission, the EPS will be in charge of monitoring power busses going to payloads and other operational hardware through nine Texas Instruments INA219 sensors. These sensors help monitor current, voltage, and the power draw for any designated bus lines. 
+Also aboard the EPS is a NTC thermistor whose readings shall be used to read ambient temperature, determine if the battery heater needs to be toggled on/off, and help calibrate the MAX17049 sensor.
+The MAX17049 sensor is an integrated circuit that calculates a battery's State of Charge (aka percentage) as well as the voltage of the batteries.
+To accomplish this task, the EPS has been equipped with CAN Bus controllers to communicate with the other boards and I2C to read sensor telemetry.
+
+Throughout the course of operation, the EPS will take commands from the On Board Computer (OBC), send and receive acknowledgement packets, report sensor/bus faults, toggle busses/heaters, and send telemetry back to the OBC for transmission to Earth.
+Future plans, if time permits, include experimenting with a simple eclipse prediction algorithm, and other bonus features!
 
 - One build system: `west` + CMake/Ninja (Zephyr standard)
 - One app source file: `app/src/main.c`
@@ -23,7 +29,7 @@ Install these once per laptop/workstation:
 - stlink tools (`st-flash`) for flashing (default in this repo)
 - OpenOCD (optional fallback flasher)
 
-Example package install commands:
+Example package install commands: (Install Zephyr and uv Seperately)
 
 ```bash
 # macOS (Homebrew)
@@ -107,7 +113,7 @@ python -m west flash --runner openocd
 
 If `python -m west flash` tries `stm32cubeprogrammer` by default and fails, use `--runner openocd` explicitly as above.
 
-## Project structure
+## Project structure (Needs Updating)
 
 ```text
 eps/
