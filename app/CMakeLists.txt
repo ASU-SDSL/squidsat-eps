@@ -6,18 +6,21 @@ project(eps)
 list(APPEND CMAKE_MODULE_PATH ${ZEPHYR_BASE}/modules/nanopb)
 include(nanopb)
 
-target_include_directories(app PRIVATE include)
+target_include_directories(app PRIVATE 
+						   ${CMAKE_CURRENT_LIST_DIR}/drivers/include
+						   ${CMAKE_CURRENT_LIST_DIR}/utilities/include
+						   ${CMAKE_CURRENT_LIST_DIR}/tasks/include)
 
 zephyr_nanopb_sources(app proto/eps_link.proto)
 target_sources(app PRIVATE
-	src/main.c
-	src/can_link.c
-	src/sensor_task.c
-	src/nka103c1b1.c
-	src/ntcle101.c
-	src/set_rail.c
-	src/ina219.c
-	src/max17049.c
-	src/adc.c
-	src/battery_heater.c
+	main.c
+	${CMAKE_CURRENT_LIST_DIR}/drivers/src/can_link.c
+	${CMAKE_CURRENT_LIST_DIR}/tasks/src/sensor_task.c
+	${CMAKE_CURRENT_LIST_DIR}/drivers/src/nka103c1b1.c
+	${CMAKE_CURRENT_LIST_DIR}/drivers/src/ntcle101.c
+	${CMAKE_CURRENT_LIST_DIR}/utilities/src/set_rail.c
+	${CMAKE_CURRENT_LIST_DIR}/drivers/src/ina219.c
+	${CMAKE_CURRENT_LIST_DIR}/drivers/src/max17049.c
+	${CMAKE_CURRENT_LIST_DIR}/drivers/src/adc.c
+	${CMAKE_CURRENT_LIST_DIR}/drivers/src/battery_heater.c
 )

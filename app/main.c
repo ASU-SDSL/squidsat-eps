@@ -19,7 +19,7 @@
 #include "sensor_task.h"
 #include "nka103c1b1.h"
 #include "ntcle101.h" 
-#include "ina219.h"
+#include "ntcle101.h"
 
 
 State currentState = BOOT;
