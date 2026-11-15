@@ -198,21 +198,24 @@ int main(void) {
 		k_msleep(100);
 	}
 
+	// If TX wants to send a broadcast
 	if (action.broadcast) {
+		// Try and sent the tx_buffer to another CAN transciever
 		ret = can_link_send_broadcast(tx_buffer, encoded_len);
+
 		if (ret != 0) {
 			LOG_ERR("TX broadcast failed (seq=%" PRIu32 "): %d", seq, ret);
 		} else {
 			LOG_INF("TX broadcast seq=%" PRIu32 " bytes=%u", seq, (unsigned int)encoded_len);
 		}
 	} else {
+		// Try and send tx_buffer to specific node (? idk)
 		ret = can_link_send_to(action.target_node, tx_buffer, encoded_len);
+
 		if (ret != 0) {
-			LOG_ERR("TX unicast failed (seq=%" PRIu32 ", target=%u): %d", seq,
-				action.target_node, ret);
+			LOG_ERR("TX unicast failed (seq=%" PRIu32 ", target=%u): %d", seq, action.target_node, ret);
 		} else {
-			LOG_INF("TX unicast seq=%" PRIu32 " target=%u bytes=%u", seq,
-				action.target_node, (unsigned int)encoded_len);
+			LOG_INF("TX unicast seq=%" PRIu32 " target=%u bytes=%u", seq, action.target_node, (unsigned int)encoded_len);
 		}
 	}
 
