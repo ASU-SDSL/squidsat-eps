@@ -54,6 +54,6 @@ void sensor_task(){
 		}
 		
 
-		k_msleep(1000);
+		k_msleep(SENSOR_JOB_INTERVAL_MS);	// Run the Job every 1000ms (1 second)
     }
 }
