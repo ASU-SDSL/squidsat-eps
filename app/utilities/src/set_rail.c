@@ -61,6 +61,14 @@ int setRail(Payload payload, Command command){
                 gpio_pin_set_dt(&ndantRail, 0);
             }
             break;
+        case ALL_OFF:
+            gpio_pin_set_dt(&payloadRail, 0);
+            gpio_pin_set_dt(&lumoRail, 0);
+            gpio_pin_set_dt(&peecRail, 0);
+            gpio_pin_set_dt(&dantRail, 0);
+            gpio_pin_set_dt(&nextageRail, 0);
+            gpio_pin_set_dt(&ndantRail, 0);
+            break;            
         default:
             break;
         }

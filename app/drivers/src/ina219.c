@@ -5,9 +5,12 @@
 #include <zephyr/devicetree.h>
 #include <zephyr/drivers/sensor.h> 
 #include <zephyr/sys/util.h>
+#include "set_rail.h"
 
 #define DT_DRV_COMPAT ti_ina219
 #define GET_SENSOR_DEVICE(inst) DEVICE_DT_INST_GET(inst),
+
+#define NUM_OF_INA_SENSORS 9;
 
 LOG_MODULE_REGISTER(ina219, LOG_LEVEL_INF);
 
@@ -69,7 +72,7 @@ int readSingleINA(int nodeIndex, ina219_data_t *inaInstance){
 }
 
 int readAllINA(ina219_data_t inaSensors[]){
-	for(int i = 0; i < 9; i++){
+	for(int i = 0; i < NUM_OF_INA_SENSORS; i++){
 		readSingleINA(i, &inaSensors[i]);	// Read the sensor information
 		inaSensors[i].id = (uint8_t)i; 	
 			// TODO: Redundant, we dont need to assign ID's each time
@@ -77,6 +80,7 @@ int readAllINA(ina219_data_t inaSensors[]){
 			(inaSensors[i].current > SAFE_RANGES->currentMax || inaSensors[i].current < SAFE_RANGES->currentMin)){
 				LOG_ERR("INA %d Voltage or Current is beyond a safe range", i);
 				// TODO: Shut off all payloads via load switches and power and send info to OBC/DANT
+				setRail(ALL_OFF, OFF);		// Turns off all the payloads
 			}
 	}
 	

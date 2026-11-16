@@ -17,6 +17,7 @@ typedef enum {
     DANT,
     NEXTAGE,
     NDANT,
+    ALL_OFF,
     NO_PAYLOAD
 }Payload;
 
