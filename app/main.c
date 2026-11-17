@@ -87,22 +87,13 @@ int main(void) {
 	struct tx_action action = tx_plan[plan_idx];
 	bool encoded_ok;
 
-	// tx_buffer is the data we want to transmit, split into 1 byte (8bit) sections
-	// we must follow the format of the eps_link.proto file when adding data to the buffer
-	tx_buffer[26] = inaData.current;
-	tx_buffer[30] = inaData.voltage;
-	tx_buffer[34] = inaData.power;
-	tx_buffer[38] = inaData.shuntVoltage;
-	//action.broadcast = false;				// Send to single node (OBC or DANT, not to everyone)
-
 	if (action.broadcast) {
 		encoded_ok = encode_broadcast_message(seq, tx_buffer, &encoded_len);
 	} else {
-		encoded_ok = encode_unicast_message(seq, tx_buffer, &encoded_len);	// Encode Protobuf message (? Comment by Aidan)
+		encoded_ok = encode_unicast_message(seq, tx_buffer, &encoded_len, &inaData);	// Encode Protobuf message (? Comment by Aidan)
 	}
 
 	
-
 	if (!encoded_ok) {
 		k_msleep(100);
 	}
