@@ -14,133 +14,33 @@
 #include <pb_decode.h>
 #include <pb_encode.h>
 #include "state.h"
-#include "can_link.h"
 #include "proto/eps_link.pb.h"
+#include "can_link.h"
 #include "sensor_task.h"
 #include "nka103c1b1.h"
 #include "ntcle101.h" 
 #include "ntcle101.h"
+#include "ina219.h"
 
 
-State currentState = BOOT;
 
 K_THREAD_STACK_DEFINE(sensor_task_stack, 1024);		// Creating the sensor__task
 struct k_thread sensor_task_thread;
 
 LOG_MODULE_REGISTER(eps, LOG_LEVEL_INF);
 
-struct tx_action {
-	bool broadcast;
-	uint8_t target_node;
-};
 
-// CAN code, by Wayne
-static bool encode_unicast_message(uint32_t seq, uint8_t *buffer, size_t *encoded_len)
-{
-	EpsLinkMessage msg = EpsLinkMessage_init_zero;
-	pb_ostream_t stream = pb_ostream_from_buffer(buffer, EpsLinkMessage_size);
-
-	msg.node_id = can_link_node_id();
-	msg.seq = seq;
-	msg.type = (seq % 2U == 0U) ? EpsLinkMessage_MsgType_HEARTBEAT : EpsLinkMessage_MsgType_STATUS;
-
-	if (!pb_encode(&stream, EpsLinkMessage_fields, &msg)) {
-		LOG_ERR("Nanopb encode failed: %s", PB_GET_ERROR(&stream));
-		return false;
-	}
-
-	*encoded_len = stream.bytes_written;
-	return true;
-}
-
-static bool encode_broadcast_message(uint32_t seq, uint8_t *buffer, size_t *encoded_len)
-{
-	EpsLinkMessage msg = EpsLinkMessage_init_zero;
-	pb_ostream_t stream = pb_ostream_from_buffer(buffer, EpsLinkMessage_size);
-
-	msg.node_id = can_link_node_id();
-	msg.seq = seq;
-	msg.type = EpsLinkMessage_MsgType_STATUS;
-
-	if (!pb_encode(&stream, EpsLinkMessage_fields, &msg)) {
-		LOG_ERR("Nanopb broadcast encode failed: %s", PB_GET_ERROR(&stream));
-		return false;
-	}
-
-	*encoded_len = stream.bytes_written;
-	return true;
-}
-
-static bool decode_message(const uint8_t *buffer, size_t len, EpsLinkMessage *msg)
-{
-	pb_istream_t stream = pb_istream_from_buffer(buffer, len);
-
-	*msg = (EpsLinkMessage)EpsLinkMessage_init_zero;
-	if (!pb_decode(&stream, EpsLinkMessage_fields, msg)) {
-		LOG_ERR("Nanopb decode failed: %s", PB_GET_ERROR(&stream));
-		return false;
-	}
-
-	return true;
-}
-
-static void on_can_message(const uint8_t *buffer, size_t len, uint8_t source_node, bool is_broadcast,
-			   void *user_data)
-{
-	EpsLinkMessage msg;
-
-	ARG_UNUSED(user_data);
-
-	if (!decode_message(buffer, len, &msg)) {
-		return;
-	}
-
-	LOG_INF("RX src=%u broadcast=%d node_id=%" PRIu32 " seq=%" PRIu32 " uptime_ms=%" PRIu32 " type=%u",
-		source_node, is_broadcast, msg.node_id, msg.seq, msg.uptime_ms, (unsigned int)msg.type);
-}
-
-static size_t build_tx_plan(uint8_t local_node, struct tx_action *plan, size_t max_actions)
-{
-	if (max_actions < 3U) {
-		return 0U;
-	}
-
-	if (local_node == 0x01U) {
-		plan[0] = (struct tx_action){ .broadcast = true, .target_node = 0xFFU };
-		plan[1] = (struct tx_action){ .broadcast = false, .target_node = 0x02U };
-		plan[2] = (struct tx_action){ .broadcast = false, .target_node = 0x03U };
-		return 3U;
-	}
-
-	if (local_node == 0x02U) {
-		plan[0] = (struct tx_action){ .broadcast = false, .target_node = 0x01U };
-		plan[1] = (struct tx_action){ .broadcast = false, .target_node = 0x03U };
-		return 2U;
-	}
-
-	if (local_node == 0x03U) {
-		plan[0] = (struct tx_action){ .broadcast = false, .target_node = 0x01U };
-		plan[1] = (struct tx_action){ .broadcast = false, .target_node = 0x02U };
-		return 2U;
-	}
-
-	plan[0] = (struct tx_action){ .broadcast = false, .target_node = (uint8_t)CONFIG_CAN_LINK_PEER_NODE_ADDR };
-	return 1U;
-}
-// END OF CAN CODE
 
 // MAIN FUNCTION
 int main(void) {
 	//printk("Aidan was here");
 	uint8_t tx_buffer[EpsLinkMessage_size];
-	struct tx_action tx_plan[3];
-	uint32_t seq = 0U;
-	size_t plan_len;
-	size_t plan_idx = 0U;
-	int ret;
 
 	ina219_data_t inaData = {0};
 	
+	/* Set the node ID in can_link.c to be 0x03. This is the node address for the EPS 
+	This sets the plan length to be 2, and the action.broadcat to be false (meaning we want to target one node like the OBC)
+	Having the action.broadcast be false, sets the code to use the unicast functions below in each if statement */
 	ret = can_link_init(on_can_message, NULL);
 	plan_len = build_tx_plan((uint8_t)can_link_node_id(), tx_plan, ARRAY_SIZE(tx_plan));
 
@@ -175,8 +75,7 @@ int main(void) {
 		return 0;
 	}
 
-	LOG_INF("TX plan loaded for node=%u entries=%u", (unsigned int)can_link_node_id(),
-	(unsigned int)plan_len);
+	LOG_INF("TX plan loaded for node=%u entries=%u", (unsigned int)can_link_node_id(), (unsigned int)plan_len);
 	// END CAN INIT
 
 	
@@ -188,11 +87,21 @@ int main(void) {
 	struct tx_action action = tx_plan[plan_idx];
 	bool encoded_ok;
 
+	// tx_buffer is the data we want to transmit, split into 1 byte (8bit) sections
+	// we must follow the format of the eps_link.proto file when adding data to the buffer
+	tx_buffer[26] = inaData.current;
+	tx_buffer[30] = inaData.voltage;
+	tx_buffer[34] = inaData.power;
+	tx_buffer[38] = inaData.shuntVoltage;
+	//action.broadcast = false;				// Send to single node (OBC or DANT, not to everyone)
+
 	if (action.broadcast) {
 		encoded_ok = encode_broadcast_message(seq, tx_buffer, &encoded_len);
 	} else {
-		encoded_ok = encode_unicast_message(seq, tx_buffer, &encoded_len);
+		encoded_ok = encode_unicast_message(seq, tx_buffer, &encoded_len);	// Encode Protobuf message (? Comment by Aidan)
 	}
+
+	
 
 	if (!encoded_ok) {
 		k_msleep(100);
@@ -219,8 +128,8 @@ int main(void) {
 		}
 	}
 
-	seq++;
-	plan_idx = (plan_idx + 1U) % plan_len;
+	seq++;										// Increase attempt number (? Comment written by Aidan)
+	plan_idx = (plan_idx + 1U) % plan_len;		// Try the other plans in tx_plan. Should all be false (unicast) for EPS. Tries to send to OBC then DANT
 
 	//float temp = getBattTemp(raw_value);
 	//printk("Batt temperature is: %f", temp);

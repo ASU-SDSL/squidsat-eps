@@ -27,4 +27,7 @@ typedef enum{
     OFF,
     NO_CMD
 }Command;
+
+int setRail(Payload payload, Command command);
+
 #endif

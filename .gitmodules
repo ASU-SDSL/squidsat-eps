@@ -1,0 +1,3 @@
+[submodule "app/lib/sdsl-can"]
+	path = app/lib/sdsl-can
+	url = https://github.com/ASU-SDSL/sdsl-can.git

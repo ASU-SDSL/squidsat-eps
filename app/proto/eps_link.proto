@@ -11,4 +11,10 @@ message EpsLinkMessage {
 	uint32 uptime_ms = 3;
 	MsgType type = 4;
 	uint32 target_node = 5;
+
+	// INA Telemetry
+	float current = 6;
+	float voltage = 7;
+	float power = 8;
+	float shunt = 9;
 }
