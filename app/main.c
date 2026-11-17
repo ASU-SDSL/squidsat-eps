@@ -16,6 +16,7 @@
 #include "state.h"
 #include "proto/eps_link.pb.h"
 #include "can_link.h"
+#include "can_wrapper.h"
 #include "sensor_task.h"
 #include "nka103c1b1.h"
 #include "ntcle101.h" 
